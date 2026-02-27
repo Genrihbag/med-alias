@@ -67,7 +67,7 @@ export const GuessSetup = ({ onBack, onCreated }: GuessSetupProps) => {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="mb-1 text-sm text-violet-400">Онлайн режим</p>
-            <h1 className="text-2xl font-semibold">Шаг 1: настройка лобби</h1>
+            <h1 className="text-2xl font-semibold">Шаг 1: Настройка лобби</h1>
             <p className="mt-1 text-xs text-slate-300">
               Онлайн-квиз без ведущего: каждый игрок отвечает на одни и те же вопросы, очки
               считаются по игрокам.
