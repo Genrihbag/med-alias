@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import type { AppView, GameMode } from './types'
 import { useGame } from './context/GameContext'
 import { useRoom } from './context/RoomContext'
+import { useAuth } from './context/AuthContext'
 import WelcomeScreen from './components/WelcomeScreen'
 import TeamsSetup from './components/TeamsSetup'
 import GuessSetup from './components/GuessSetup'
@@ -41,6 +42,7 @@ function extractRoomIdFromInput(input: string): string | null {
 const App = () => {
   const { mode, selectMode, resetGame } = useGame()
   const { currentRoom, joinRoomById, resetRoomState } = useRoom()
+  const { user, isLoading } = useAuth()
   const [view, setView] = useState<AppView>('welcome')
   const [pendingTeamsCountdown, setPendingTeamsCountdown] = useState(false)
   const [showCreatingRoom, setShowCreatingRoom] = useState(false)
@@ -75,6 +77,11 @@ const App = () => {
   const handleJoinRoomByCode = (input: string) => {
     const trimmed = input.trim()
     if (!trimmed) return
+    if (!user) {
+      alert('Сначала введите своё имя, затем присоединяйтесь к комнате.')
+      setView('welcome')
+      return
+    }
     const roomId = extractRoomIdFromInput(input)
     console.log('[App] handleJoinRoomByCode', roomId ?? trimmed)
     if (roomId) joinRoomById(roomId)
@@ -88,12 +95,27 @@ const App = () => {
   }
 
   const handleCreateRoom = (opts?: { countdown?: 'teams' | 'guess' }) => {
+    if (!user) {
+      alert('Сначала введите своё имя на главном экране.')
+      setView('welcome')
+      return
+    }
     setView('lobby')
     if (opts?.countdown === 'teams') setPendingTeamsCountdown(true)
   }
 
   const handleStartGuessView = () => {
     setView('guessGame')
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 text-slate-100">
+        <div className="rounded-xl bg-slate-900/80 px-6 py-4 text-center shadow-lg">
+          Загрузка...
+        </div>
+      </div>
+    )
   }
 
   if (currentRoom) {

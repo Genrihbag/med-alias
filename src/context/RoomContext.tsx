@@ -29,6 +29,7 @@ import {
   apiCreateRoom,
   apiJoinRoom,
   apiUpdateRoom,
+  apiGetRoom,
   isApiEnabled,
 } from '../api/rooms'
 import { useAuth } from './AuthContext'
@@ -333,6 +334,28 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
     setCurrentRoomId(null)
     setRoomIdInUrl(null)
   }, [])
+
+  // Пуллинг состояния комнаты с сервера, чтобы лобби и игра обновлялись у всех клиентов
+  useEffect(() => {
+    if (!isApiEnabled() || !currentRoomId) return
+    const id = currentRoomId
+    const interval = setInterval(() => {
+      apiGetRoom(id)
+        .then((room) => {
+          setRoomsById((prev) => ({ ...prev, [room.id]: room }))
+        })
+        .catch((e) => {
+          if ((e as Error).message?.toLowerCase().includes('room not found')) {
+            setCurrentRoomId(null)
+            setRoomIdInUrl(null)
+          } else {
+            // eslint-disable-next-line no-console
+            console.warn('[RoomContext] polling error', e)
+          }
+        })
+    }, 2500)
+    return () => clearInterval(interval)
+  }, [currentRoomId])
 
   // попытка авто-присоединения по параметру room в URL (отложенно, чтобы не вызывать setState из lifecycle)
   useEffect(() => {
