@@ -23,6 +23,8 @@ export const GuessBoard = () => {
   const secondsPerWord = currentRoom?.guessPerQuestionSec ?? currentRoom?.settings.roundDurationSec ?? 60
   const [secondsLeft, setSecondsLeft] = useState(secondsPerWord)
   const [resultSecondsLeft, setResultSecondsLeft] = useState(RESULT_DISPLAY_SEC)
+  // Локальный флаг, что пользователь уже отправил ответ (для мгновенного скрытия кнопки)
+  const [submitted, setSubmitted] = useState(false)
 
   const isHost = !!(currentRoom && user && currentRoom.hostId === user.id)
   const isShowingResult = currentRoom?.guessShowingResult ?? false
@@ -48,6 +50,7 @@ export const GuessBoard = () => {
     setUsedHint(false)
     setHintRevealed(false)
     setAnswer('')
+    setSubmitted(false)
   }, [currentRoom?.currentQuestionIndex])
 
   // Question timer: sync to server's guessStartedAt
@@ -142,7 +145,8 @@ export const GuessBoard = () => {
   const categoryMeta = CATEGORIES[currentCard.category]
 
   const doSubmit = (finalAnswer: string) => {
-    if (hasAnswered || isFinished || isShowingResult) return
+    if (submitted || isFinished || isShowingResult) return
+    setSubmitted(true)
     submitGuess(finalAnswer, usedHint)
     setAnswer('')
     setShowEmptyConfirm(false)
@@ -150,7 +154,7 @@ export const GuessBoard = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    if (hasAnswered || isFinished || isShowingResult) return
+    if (submitted || isFinished || isShowingResult) return
     const trimmed = answer.trim()
     if (trimmed === '') {
       setShowEmptyConfirm(true)
@@ -278,12 +282,12 @@ export const GuessBoard = () => {
               type="text"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              disabled={hasAnswered || isFinished || isShowingResult}
+              disabled={submitted || isFinished || isShowingResult}
               className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none transition disabled:cursor-not-allowed disabled:opacity-70 focus:border-violet-400 focus:ring-2 focus:ring-violet-500/40"
               placeholder="Введите слово"
             />
           </label>
-          {!hasAnswered && !isFinished && !isShowingResult && (
+          {!submitted && !isFinished && !isShowingResult && (
             <div className="flex gap-3">
               <button
                 type="submit"

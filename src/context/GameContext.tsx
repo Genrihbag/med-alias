@@ -54,9 +54,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const submitGuess = useCallback(
     (answer: string, usedHint?: boolean) => {
       if (!currentRoom || hasAnswered) return
-      if (currentRoom.settings.mode !== 'guess') return
-      if (currentRoom.status !== 'inGame') return
-
       const result = roomSubmitGuess(answer, usedHint)
       if (!result) return
 

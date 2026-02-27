@@ -108,12 +108,36 @@ export const Lobby = ({
   const roomUrl = `${window.location.origin}/?room=${currentRoom.id}`
 
   const handleCopyLink = async () => {
+    let success = false
     try {
-      await navigator.clipboard.writeText(roomUrl)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(roomUrl)
+        success = true
+      }
+    } catch {
+      // ignore and try fallback
+    }
+
+    if (!success) {
+      try {
+        const textarea = document.createElement('textarea')
+        textarea.value = roomUrl
+        textarea.setAttribute('readonly', '')
+        textarea.style.position = 'fixed'
+        textarea.style.left = '-9999px'
+        document.body.appendChild(textarea)
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+        success = true
+      } catch {
+        success = false
+      }
+    }
+
+    if (success) {
       setCopyToast(true)
       setTimeout(() => setCopyToast(false), 2500)
-    } catch {
-      // ignore clipboard errors
     }
   }
 
