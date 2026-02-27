@@ -41,11 +41,12 @@ function extractRoomIdFromInput(input: string): string | null {
 
 const App = () => {
   const { mode, selectMode, resetGame } = useGame()
-  const { currentRoom, joinRoomById, resetRoomState } = useRoom()
+  const { currentRoom, joinRoomById, resetRoomState, startTeamsGame } = useRoom()
   const { user, isLoading } = useAuth()
   const [view, setView] = useState<AppView>('welcome')
   const [pendingTeamsCountdown, setPendingTeamsCountdown] = useState(false)
   const [showCreatingRoom, setShowCreatingRoom] = useState(false)
+  const [teamsAutoStarted, setTeamsAutoStarted] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -64,6 +65,18 @@ const App = () => {
     const t = setTimeout(() => setShowCreatingRoom(true), 500)
     return () => clearTimeout(t)
   }, [view, currentRoom])
+
+  // Для командного режима не показываем онлайн-лобби: как только комната создана, сразу запускаем игру
+  useEffect(() => {
+    if (!currentRoom || currentRoom.settings.mode !== 'teams') {
+      if (!currentRoom) setTeamsAutoStarted(false)
+      return
+    }
+    if (currentRoom.status !== 'lobby') return
+    if (teamsAutoStarted) return
+    startTeamsGame()
+    setTeamsAutoStarted(true)
+  }, [currentRoom, startTeamsGame, teamsAutoStarted])
 
   const handleSelectMode = (nextMode: GameMode) => {
     selectMode(nextMode)
@@ -100,8 +113,13 @@ const App = () => {
       setView('welcome')
       return
     }
+    if (opts?.countdown === 'teams') {
+      // для командного режима игра запускается сразу, без отдельного онлайн-лобби
+      setView('teamsSetup')
+      return
+    }
     setView('lobby')
-    if (opts?.countdown === 'teams') setPendingTeamsCountdown(true)
+    if (opts?.countdown === 'guess') setPendingTeamsCountdown(true)
   }
 
   const handleStartGuessView = () => {
@@ -143,28 +161,37 @@ const App = () => {
       return <ResultsScreen onBackToHome={handleGoHome} />
     }
 
-    if (currentRoom.settings.mode === 'guess' && currentRoom.status === 'inGame') {
-      return <GuessBoard />
+    if (currentRoom.settings.mode === 'guess') {
+      if (currentRoom.status === 'inGame') {
+        return <GuessBoard />
+      }
+      return (
+        <Lobby
+          onBackToHome={handleGoHome}
+          onStartGuess={handleStartGuessView}
+          pendingTeamsCountdown={pendingTeamsCountdown}
+          onTeamsCountdownDone={() => setPendingTeamsCountdown(false)}
+        />
+      )
     }
 
-    if (currentRoom.settings.mode === 'teams' && currentRoom.status === 'inGame' && currentRoom.teamsGameState) {
-      if (currentRoom.teamsGameState.phase === 'wordConfirmation') {
-        return <TeamsWordConfirmation />
+    if (currentRoom.settings.mode === 'teams') {
+      if (currentRoom.status === 'inGame' && currentRoom.teamsGameState) {
+        if (currentRoom.teamsGameState.phase === 'wordConfirmation') {
+          return <TeamsWordConfirmation />
+        }
+        if (currentRoom.teamsGameState.phase === 'roundResults') {
+          return <TeamsRoundResults onBackToHome={handleGoHome} />
+        }
+        return <TeamsCardView />
       }
-      if (currentRoom.teamsGameState.phase === 'roundResults') {
-        return <TeamsRoundResults onBackToHome={handleGoHome} />
-      }
-      return <TeamsCardView />
+      // Комнату для командного режима создаём, но онлайн-лобби не показываем
+      return (
+        <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 text-slate-100">
+          <p className="text-slate-400">Подготовка командной игры…</p>
+        </div>
+      )
     }
-
-    return (
-      <Lobby
-        onBackToHome={handleGoHome}
-        onStartGuess={handleStartGuessView}
-        pendingTeamsCountdown={pendingTeamsCountdown}
-        onTeamsCountdownDone={() => setPendingTeamsCountdown(false)}
-      />
-    )
   }
 
   if (view === 'lobby' && !currentRoom) {

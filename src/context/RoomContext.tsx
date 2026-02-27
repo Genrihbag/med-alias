@@ -170,6 +170,11 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
       if (isApiEnabled()) {
         apiJoinRoom(normalizedId, user as AuthUser)
           .then((room) => {
+            if (room.status === 'finished') {
+              // игра в этой комнате уже завершена — не даём в неё вернуться
+              setRoomIdInUrl(null)
+              return
+            }
             setRoomsById((prev) => ({ ...prev, [room.id]: room }))
             setCurrentRoomId(room.id)
             setRoomIdInUrl(room.id)
@@ -185,6 +190,10 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
       })
       const room = joinedRoomRef.current as Room | null
       if (room) {
+        if (room.status === 'finished') {
+          setRoomIdInUrl(null)
+          return null
+        }
         setCurrentRoomId(room.id)
         setRoomIdInUrl(room.id)
         return room
@@ -386,6 +395,9 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
   useEffect(() => {
     if (!isApiEnabled() || !currentRoomId) return
     const id = currentRoomId
+    const isFastPhase =
+      currentRoom?.status === 'inGame' && currentRoom.settings.mode === 'guess'
+    const intervalMs = isFastPhase ? 800 : 2500
     const interval = setInterval(() => {
       if (Date.now() - lastMutationRef.current < 4000) return
       apiGetRoom(id)
@@ -401,9 +413,9 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
             console.warn('[RoomContext] polling error', e)
           }
         })
-    }, 2500)
+    }, intervalMs)
     return () => clearInterval(interval)
-  }, [currentRoomId])
+  }, [currentRoomId, currentRoom?.status, currentRoom?.settings.mode])
 
   // попытка авто-присоединения по параметру room в URL (отложенно, чтобы не вызывать setState из lifecycle)
   useEffect(() => {
