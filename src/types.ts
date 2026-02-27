@@ -97,6 +97,14 @@ export interface Room {
   guessStartedAt?: number | null
   /** Guess mode: per-question duration in seconds (snapshot from settings) */
   guessPerQuestionSec?: number | null
+  /** Guess mode: true while the correct-answer overlay is visible for all clients */
+  guessShowingResult?: boolean | null
+  /** Guess mode: last answer result info (visible to all clients via polling) */
+  guessLastResult?: { correct: boolean; cardId: string; answeredByName: string } | null
+  /** Guess mode: timestamp (ms) when result display started */
+  guessResultShownAt?: number | null
+  /** Guess mode: timestamp (ms) when lobby countdown started (for guest sync) */
+  guessCountdownStartedAt?: number | null
   /** Set when mode is teams and game has started */
   teamsGameState?: TeamsGameState | null
 }

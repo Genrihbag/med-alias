@@ -187,6 +187,10 @@ export const startGuessSession = (
     usedCardIds,
     guessStartedAt: Date.now(),
     guessPerQuestionSec: room.settings.roundDurationSec ?? 60,
+    guessShowingResult: false,
+    guessLastResult: null,
+    guessResultShownAt: null,
+    guessCountdownStartedAt: null,
     players: resetPlayers,
   }
 
@@ -208,6 +212,10 @@ export const submitGuess = (
 ): { roomsById: RoomsById; result: GuessResult | null } => {
   const room = roomsById[roomId]
   if (!room || room.status !== 'inGame') {
+    return { roomsById, result: null }
+  }
+
+  if (room.guessShowingResult) {
     return { roomsById, result: null }
   }
 
@@ -245,22 +253,14 @@ export const submitGuess = (
     }
   })
 
-  const totalQuestions =
-    room.settings.totalQuestions && room.settings.totalQuestions > 0
-      ? room.settings.totalQuestions
-      : usedCardIds.length
-
-  const isLastQuestion = currentQuestionIndex >= totalQuestions - 1
+  const answeredByName = room.players.find((p) => p.id === userId)?.name ?? ''
 
   const updatedRoom: Room = {
     ...room,
     players,
-    // при переходе к следующему вопросу обновляем серверное время старта
-    currentQuestionIndex: isLastQuestion
-      ? currentQuestionIndex
-      : currentQuestionIndex + 1,
-    guessStartedAt: isLastQuestion ? room.guessStartedAt ?? null : Date.now(),
-    status: isLastQuestion ? 'finished' : 'inGame',
+    guessShowingResult: true,
+    guessLastResult: { correct, cardId, answeredByName },
+    guessResultShownAt: Date.now(),
   }
 
   const result: GuessResult = {
@@ -274,6 +274,54 @@ export const submitGuess = (
       [roomId]: updatedRoom,
     },
     result,
+  }
+}
+
+export const advanceGuessQuestion = (
+  roomsById: RoomsById,
+  roomId: string,
+): { roomsById: RoomsById; room: Room | null } => {
+  const room = roomsById[roomId]
+  if (!room || room.status !== 'inGame' || !room.guessShowingResult) {
+    return { roomsById, room: null }
+  }
+
+  const nextIndex = room.currentQuestionIndex + 1
+  const totalQuestions =
+    room.settings.totalQuestions && room.settings.totalQuestions > 0
+      ? room.settings.totalQuestions
+      : room.usedCardIds.length
+  const isLast = nextIndex >= totalQuestions
+
+  const updatedRoom: Room = {
+    ...room,
+    currentQuestionIndex: isLast ? room.currentQuestionIndex : nextIndex,
+    guessStartedAt: isLast ? null : Date.now(),
+    guessShowingResult: false,
+    guessLastResult: null,
+    guessResultShownAt: null,
+    status: isLast ? 'finished' : 'inGame',
+  }
+
+  return {
+    roomsById: { ...roomsById, [roomId]: updatedRoom },
+    room: updatedRoom,
+  }
+}
+
+export const startGuessCountdown = (
+  roomsById: RoomsById,
+  roomId: string,
+): { roomsById: RoomsById; room: Room | null } => {
+  const room = roomsById[roomId]
+  if (!room) return { roomsById, room: null }
+  const updatedRoom: Room = {
+    ...room,
+    guessCountdownStartedAt: Date.now(),
+  }
+  return {
+    roomsById: { ...roomsById, [roomId]: updatedRoom },
+    room: updatedRoom,
   }
 }
 

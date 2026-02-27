@@ -18,6 +18,8 @@ import {
   leaveRoom as svcLeaveRoom,
   startGuessSession as svcStartGuessSession,
   submitGuess as svcSubmitGuess,
+  advanceGuessQuestion as svcAdvanceGuessQuestion,
+  startGuessCountdown as svcStartGuessCountdown,
   startTeamsGame as svcStartTeamsGame,
   startTeamsRound as svcStartTeamsRound,
   processTeamsCardAction as svcProcessTeamsCardAction,
@@ -43,6 +45,8 @@ interface RoomContextValue {
   leaveCurrentRoom: () => void
   startGuessSession: () => Room | null
   submitGuess: (answer: string, usedHint?: boolean) => GuessResult | null
+  advanceGuessQuestion: () => void
+  startGuessCountdown: () => void
   startTeamsGame: () => Room | null
   startTeamsRound: () => Room | null
   processTeamsCardAction: (action: TeamsCardAction, endRound?: boolean) => void
@@ -119,6 +123,8 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
 
   const createdRoomRef = useRef<Room | null>(null)
   const joinedRoomRef = useRef<Room | null>(null)
+  const lastMutationRef = useRef<number>(0)
+  const markMutation = () => { lastMutationRef.current = Date.now() }
 
   const currentRoom = useMemo<Room | null>(
     () => (currentRoomId ? roomsById[currentRoomId] ?? null : null),
@@ -222,6 +228,7 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
 
   const startGuessSession = useCallback((): Room | null => {
     if (!currentRoomId) return null
+    markMutation()
     let updatedRoom: Room | null = null
     setRoomsById((prev) => {
       const { roomsById: nextRooms, room } = svcStartGuessSession(prev, currentRoomId)
@@ -237,6 +244,7 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
   const submitGuess = useCallback(
     (answer: string, usedHint?: boolean): GuessResult | null => {
       if (!currentRoomId || !user) return null
+      markMutation()
       let result: GuessResult | null = null
       setRoomsById((prev) => {
         const { roomsById: nextRooms, result: guessResult } = svcSubmitGuess(
@@ -256,8 +264,31 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
     [currentRoomId, user],
   )
 
+  const advanceGuessQuestion = useCallback(() => {
+    if (!currentRoomId) return
+    markMutation()
+    setRoomsById((prev) => {
+      const { roomsById: nextRooms, room } = svcAdvanceGuessQuestion(prev, currentRoomId)
+      if (isApiEnabled() && room) apiUpdateRoom(room).catch(console.error)
+      const fallback = nextRooms[currentRoomId]
+      if (isApiEnabled() && !room && fallback) apiUpdateRoom(fallback).catch(console.error)
+      return nextRooms
+    })
+  }, [currentRoomId])
+
+  const startGuessCountdown = useCallback(() => {
+    if (!currentRoomId) return
+    markMutation()
+    setRoomsById((prev) => {
+      const { roomsById: nextRooms, room } = svcStartGuessCountdown(prev, currentRoomId)
+      if (isApiEnabled() && room) apiUpdateRoom(room).catch(console.error)
+      return nextRooms
+    })
+  }, [currentRoomId])
+
   const startTeamsGame = useCallback((): Room | null => {
     if (!currentRoomId) return null
+    markMutation()
     let updatedRoom: Room | null = null
     setRoomsById((prev) => {
       const { roomsById: nextRooms, room } = svcStartTeamsGame(prev, currentRoomId)
@@ -272,6 +303,7 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
 
   const startTeamsRound = useCallback((): Room | null => {
     if (!currentRoomId) return null
+    markMutation()
     let updatedRoom: Room | null = null
     setRoomsById((prev) => {
       const { roomsById: nextRooms, room } = svcStartTeamsRound(prev, currentRoomId)
@@ -287,6 +319,7 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
   const processTeamsCardAction = useCallback(
     (action: TeamsCardAction, endRound?: boolean) => {
       if (!currentRoomId) return
+      markMutation()
       setRoomsById((prev) => {
         const { roomsById: nextRooms } = svcProcessTeamsCardAction(
           prev,
@@ -305,6 +338,7 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
   const applyRoundWordConfirmation = useCallback(
     (countByCardId: Record<string, boolean>) => {
       if (!currentRoomId) return
+      markMutation()
       setRoomsById((prev) => {
         const { roomsById: nextRooms } = svcApplyRoundWordConfirmation(
           prev,
@@ -321,6 +355,7 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
 
   const finishTeamsGame = useCallback(() => {
     if (!currentRoomId) return
+    markMutation()
     setRoomsById((prev) => {
       const { roomsById: nextRooms } = svcFinishTeamsGame(prev, currentRoomId)
       const room = nextRooms[currentRoomId]
@@ -340,8 +375,10 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
     if (!isApiEnabled() || !currentRoomId) return
     const id = currentRoomId
     const interval = setInterval(() => {
+      if (Date.now() - lastMutationRef.current < 4000) return
       apiGetRoom(id)
         .then((room) => {
+          if (Date.now() - lastMutationRef.current < 4000) return
           setRoomsById((prev) => ({ ...prev, [room.id]: room }))
         })
         .catch((e) => {
@@ -349,7 +386,6 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
             setCurrentRoomId(null)
             setRoomIdInUrl(null)
           } else {
-            // eslint-disable-next-line no-console
             console.warn('[RoomContext] polling error', e)
           }
         })
@@ -377,6 +413,8 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
     leaveCurrentRoom,
     startGuessSession,
     submitGuess,
+    advanceGuessQuestion,
+    startGuessCountdown,
     startTeamsGame,
     startTeamsRound,
     processTeamsCardAction,

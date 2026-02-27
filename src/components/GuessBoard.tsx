@@ -4,60 +4,64 @@ import { CATEGORIES } from '../constants/categories'
 import { getCardById } from '../data/cards'
 import { useRoom } from '../context/RoomContext'
 import { useGame } from '../context/GameContext'
+import { useAuth } from '../context/AuthContext'
 
-const CORRECT_ANSWER_DURATION_SEC = 5
+const RESULT_DISPLAY_SEC = 5
 
 const preventCopy = (e: React.ClipboardEvent) => {
   e.preventDefault()
 }
 
 export const GuessBoard = () => {
-  const { currentRoom } = useRoom()
-  const { hasAnswered, lastResult, submitGuess, nextQuestion } = useGame()
+  const { currentRoom, advanceGuessQuestion } = useRoom()
+  const { hasAnswered, submitGuess } = useGame()
+  const { user } = useAuth()
   const [answer, setAnswer] = useState('')
   const [usedHint, setUsedHint] = useState(false)
   const [showEmptyConfirm, setShowEmptyConfirm] = useState(false)
   const [hintRevealed, setHintRevealed] = useState(false)
-  const [correctAnswerSecondsLeft, setCorrectAnswerSecondsLeft] = useState<number | null>(null)
   const secondsPerWord = currentRoom?.guessPerQuestionSec ?? currentRoom?.settings.roundDurationSec ?? 60
   const [secondsLeft, setSecondsLeft] = useState(secondsPerWord)
+  const [resultSecondsLeft, setResultSecondsLeft] = useState(RESULT_DISPLAY_SEC)
+
+  const isHost = !!(currentRoom && user && currentRoom.hostId === user.id)
+  const isShowingResult = currentRoom?.guessShowingResult ?? false
+  const guessLastResult = currentRoom?.guessLastResult ?? null
+  const isFinished = currentRoom?.status === 'finished'
 
   const totalQuestions =
     currentRoom?.settings.totalQuestions ?? currentRoom?.usedCardIds.length ?? 0
 
   const currentCard = useMemo(() => {
     if (!currentRoom || currentRoom.usedCardIds.length === 0) return null
-    if (hasAnswered && lastResult) return lastResult.card
+    if (isShowingResult && guessLastResult) {
+      return getCardById(guessLastResult.cardId) ?? null
+    }
     const index = currentRoom.currentQuestionIndex
     const cardId = currentRoom.usedCardIds[index]
     return getCardById(cardId) ?? null
-  }, [currentRoom, hasAnswered, lastResult])
+  }, [currentRoom, isShowingResult, guessLastResult])
 
-  const isFinished = currentRoom?.status === 'finished'
+  const currentQuestionNumber =
+    currentRoom && currentRoom.usedCardIds.length > 0
+      ? Math.min(currentRoom.currentQuestionIndex + 1, totalQuestions || currentRoom.usedCardIds.length)
+      : 1
 
-  const commitAndNext = useCallback(() => {
-    if (hasAnswered || isFinished) return
-    submitGuess(answer.trim() || '', usedHint)
-    setAnswer('')
-    setUsedHint(false)
-    setHintRevealed(false)
-  }, [answer, hasAnswered, isFinished, submitGuess, usedHint])
-
+  // Reset local flags when question changes
   useEffect(() => {
-    // при смене вопроса сбрасываем локальные флаги подсказки
     setUsedHint(false)
     setHintRevealed(false)
+    setAnswer('')
   }, [currentRoom?.currentQuestionIndex])
 
-  // синхронный таймер угадайки на основе серверного guessStartedAt
+  // Question timer: sync to server's guessStartedAt
   useEffect(() => {
     if (!currentRoom || currentRoom.settings.mode !== 'guess') return
-    if (!currentRoom.guessStartedAt || isFinished) return
+    if (!currentRoom.guessStartedAt || isFinished || isShowingResult) return
 
     const recompute = () => {
       const elapsedSec = Math.floor((Date.now() - currentRoom.guessStartedAt!) / 1000)
       const left = Math.max(0, secondsPerWord - elapsedSec)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSecondsLeft(left)
     }
 
@@ -65,37 +69,49 @@ export const GuessBoard = () => {
     const t = setInterval(recompute, 1000)
     return () => clearInterval(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentRoom?.guessStartedAt, currentRoom?.settings.mode, secondsPerWord, isFinished])
+  }, [currentRoom?.guessStartedAt, currentRoom?.settings.mode, secondsPerWord, isFinished, isShowingResult])
+
+  // Auto-submit on timer expiry (host only to avoid duplicate submissions)
+  const commitAndNext = useCallback(() => {
+    if (hasAnswered || isFinished || isShowingResult) return
+    submitGuess(answer.trim() || '', usedHint)
+    setAnswer('')
+    setUsedHint(false)
+    setHintRevealed(false)
+  }, [answer, hasAnswered, isFinished, isShowingResult, submitGuess, usedHint])
 
   useEffect(() => {
-    if (secondsLeft === 0 && !hasAnswered && !isFinished) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (secondsLeft === 0 && !hasAnswered && !isFinished && !isShowingResult && isHost) {
       commitAndNext()
     }
-  }, [secondsLeft, hasAnswered, isFinished, commitAndNext])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secondsLeft, hasAnswered, isFinished, isShowingResult, isHost])
 
-  // Start 5s correct-answer screen when user has just answered
+  // Result timer: sync to server's guessResultShownAt
   useEffect(() => {
-    if (hasAnswered && lastResult && correctAnswerSecondsLeft === null) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCorrectAnswerSecondsLeft(CORRECT_ANSWER_DURATION_SEC)
+    if (!isShowingResult || !currentRoom?.guessResultShownAt) {
+      setResultSecondsLeft(RESULT_DISPLAY_SEC)
+      return
     }
-    if (!hasAnswered) setCorrectAnswerSecondsLeft(null)
-  }, [hasAnswered, lastResult])
 
+    const recompute = () => {
+      const elapsedSec = Math.floor((Date.now() - currentRoom.guessResultShownAt!) / 1000)
+      const left = Math.max(0, RESULT_DISPLAY_SEC - elapsedSec)
+      setResultSecondsLeft(left)
+    }
+
+    recompute()
+    const t = setInterval(recompute, 500)
+    return () => clearInterval(t)
+  }, [isShowingResult, currentRoom?.guessResultShownAt])
+
+  // When result timer reaches 0, host advances to next question
   useEffect(() => {
-    if (correctAnswerSecondsLeft === null || correctAnswerSecondsLeft <= 0) return
-    const t = setTimeout(() => {
-      if (correctAnswerSecondsLeft === 1) {
-        setAnswer('')
-        nextQuestion()
-        setCorrectAnswerSecondsLeft(null)
-      } else {
-        setCorrectAnswerSecondsLeft(correctAnswerSecondsLeft - 1)
-      }
-    }, 1000)
-    return () => clearTimeout(t)
-  }, [correctAnswerSecondsLeft, nextQuestion])
+    if (resultSecondsLeft <= 0 && isShowingResult && isHost) {
+      advanceGuessQuestion()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultSecondsLeft, isShowingResult, isHost])
 
   if (!currentRoom || currentRoom.settings.mode !== 'guess') {
     return (
@@ -120,7 +136,7 @@ export const GuessBoard = () => {
   const categoryMeta = CATEGORIES[currentCard.category]
 
   const doSubmit = (finalAnswer: string) => {
-    if (hasAnswered || isFinished) return
+    if (hasAnswered || isFinished || isShowingResult) return
     submitGuess(finalAnswer, usedHint)
     setAnswer('')
     setShowEmptyConfirm(false)
@@ -128,7 +144,7 @@ export const GuessBoard = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    if (hasAnswered || isFinished) return
+    if (hasAnswered || isFinished || isShowingResult) return
     const trimmed = answer.trim()
     if (trimmed === '') {
       setShowEmptyConfirm(true)
@@ -141,12 +157,7 @@ export const GuessBoard = () => {
     doSubmit('')
   }
 
-  const showCorrectAnswerScreen = hasAnswered && lastResult && correctAnswerSecondsLeft !== null
-
-  const currentQuestionNumber =
-    currentRoom && currentRoom.usedCardIds.length > 0
-      ? Math.min(currentRoom.currentQuestionIndex + 1, totalQuestions || currentRoom.usedCardIds.length)
-      : 1
+  const resultCard = guessLastResult ? getCardById(guessLastResult.cardId) : null
 
   return (
     <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 px-4 text-slate-100">
@@ -176,15 +187,20 @@ export const GuessBoard = () => {
         </div>
       )}
 
-      {showCorrectAnswerScreen && lastResult && (
+      {isShowingResult && resultCard && (
         <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-slate-950/95 px-4">
-          <p className="mb-2 text-sm text-slate-400">Правильный ответ</p>
-          <p className="text-3xl font-bold text-violet-300">{lastResult.card.word}</p>
+          <p className="mb-1 text-xs text-slate-500">
+            Ответил(а): {guessLastResult?.answeredByName ?? '—'}
+          </p>
+          <p className="mb-2 text-sm text-slate-400">
+            {guessLastResult?.correct ? 'Правильно!' : 'Неправильно'}
+          </p>
+          <p className="text-3xl font-bold text-violet-300">{resultCard.word}</p>
           <p className="mt-4 max-w-md text-center text-sm text-slate-300">
-            {lastResult.card.fact}
+            {resultCard.fact}
           </p>
           <p className="mt-6 text-slate-500">
-            Следующий вопрос через {correctAnswerSecondsLeft}…
+            Следующий вопрос через {resultSecondsLeft}…
           </p>
         </div>
       )}
@@ -200,7 +216,7 @@ export const GuessBoard = () => {
           <div className="flex items-center gap-4">
             <div className="rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2 text-center">
               <p className="text-xl font-mono font-semibold tabular-nums text-slate-100">
-                {hasAnswered ? '—' : secondsLeft}
+                {isShowingResult || hasAnswered ? '—' : secondsLeft}
               </p>
             </div>
           </div>
@@ -238,7 +254,7 @@ export const GuessBoard = () => {
                   setHintRevealed(true)
                   setUsedHint(true)
                 }}
-                disabled={hasAnswered || isFinished}
+                disabled={hasAnswered || isFinished || isShowingResult}
                 className="mt-2 w-full rounded-xl border border-emerald-500/60 bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50"
               >
                 Показать подсказки (−0.5 балла)
@@ -259,7 +275,7 @@ export const GuessBoard = () => {
               type="text"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              disabled={hasAnswered || isFinished}
+              disabled={hasAnswered || isFinished || isShowingResult}
               className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none transition disabled:cursor-not-allowed disabled:opacity-70 focus:border-violet-400 focus:ring-2 focus:ring-violet-500/40"
               placeholder="Введите слово"
             />
@@ -267,7 +283,7 @@ export const GuessBoard = () => {
           <div className="flex gap-3">
             <button
               type="submit"
-              disabled={hasAnswered || isFinished}
+              disabled={hasAnswered || isFinished || isShowingResult}
               className="rounded-xl bg-violet-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-violet-500/30 transition hover:bg-violet-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Ответить

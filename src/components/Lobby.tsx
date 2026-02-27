@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { CATEGORIES } from '../constants/categories'
 import { useAuth } from '../context/AuthContext'
 import { useRoom } from '../context/RoomContext'
 import { useGame } from '../context/GameContext'
 import type { GameMode } from '../types'
+
+const GUESS_COUNTDOWN_SEC = 5
 
 interface LobbyProps {
   onBackToHome: () => void
@@ -31,7 +33,7 @@ export const Lobby = ({
   onTeamsCountdownDone,
 }: LobbyProps) => {
   const { user } = useAuth()
-  const { currentRoom, leaveCurrentRoom, startTeamsGame } = useRoom()
+  const { currentRoom, leaveCurrentRoom, startTeamsGame, startGuessCountdown } = useRoom()
   const { startGuessGame } = useGame()
   const [countdown, setCountdown] = useState<number | null>(null)
   const [guessCountdown, setGuessCountdown] = useState<number | null>(null)
@@ -44,7 +46,6 @@ export const Lobby = ({
 
   useEffect(() => {
     if (!pendingTeamsCountdown || currentRoom?.settings.mode !== 'teams' || !isHost) return
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCountdown(5)
   }, [pendingTeamsCountdown, currentRoom?.settings.mode, isHost])
 
@@ -62,19 +63,37 @@ export const Lobby = ({
     return () => clearTimeout(t)
   }, [countdown, startTeamsGame, onTeamsCountdownDone])
 
+  // Guess countdown: derived from server timestamp so ALL clients see it
   useEffect(() => {
-    if (guessCountdown === null || guessCountdown <= 0) return
-    const t = setTimeout(() => {
-      if (guessCountdown === 1) {
-        startGuessGame()
-        onStartGuess()
-        setGuessCountdown(null)
-      } else {
-        setGuessCountdown(guessCountdown - 1)
-      }
-    }, 1000)
-    return () => clearTimeout(t)
-  }, [guessCountdown, startGuessGame, onStartGuess])
+    const startedAt = currentRoom?.guessCountdownStartedAt
+    if (!startedAt || currentRoom?.status !== 'lobby') {
+      setGuessCountdown(null)
+      return
+    }
+
+    const recompute = () => {
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000)
+      const left = Math.max(0, GUESS_COUNTDOWN_SEC - elapsed)
+      setGuessCountdown(left)
+    }
+
+    recompute()
+    const t = setInterval(recompute, 500)
+    return () => clearInterval(t)
+  }, [currentRoom?.guessCountdownStartedAt, currentRoom?.status])
+
+  const handleGuessCountdownDone = useCallback(() => {
+    startGuessGame()
+    onStartGuess()
+  }, [startGuessGame, onStartGuess])
+
+  // When guess countdown reaches 0, host starts the game
+  useEffect(() => {
+    if (guessCountdown === 0 && isHost && currentRoom?.status === 'lobby') {
+      handleGuessCountdownDone()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [guessCountdown, isHost, currentRoom?.status])
 
   if (!currentRoom) {
     return (
@@ -105,7 +124,7 @@ export const Lobby = ({
 
   const handleStartGuess = () => {
     if (currentRoom.settings.mode !== 'guess') return
-    setGuessCountdown(5)
+    startGuessCountdown()
   }
 
   const handleStartTeamsGame = () => {
@@ -170,7 +189,7 @@ export const Lobby = ({
                     key={player.id}
                     className="flex items-center justify-between rounded-xl bg-slate-900/80 px-3 py-2"
                   >
-                    <span className="flex items-center gap-2">
+                    <span className="flex justify-between items-center gap-2">
                       <span className="h-2 w-2 rounded-full bg-violet-400" />
                       <span>{player.name}</span>
                       {player.id === currentRoom.hostId && (
@@ -179,7 +198,6 @@ export const Lobby = ({
                         </span>
                       )}
                     </span>
-                    <span className="text-xs text-slate-400">{player.score} очков</span>
                   </li>
                 ))}
               </ul>
