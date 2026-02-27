@@ -68,31 +68,33 @@ export const ResultsScreen = ({ onBackToHome }: ResultsScreenProps) => {
                 Похоже, в этой комнате ещё нет игроков.
               </p>
             ) : (
-              <table className="mt-3 w-full border-collapse text-left text-xs">
-                <thead className="text-slate-300">
-                  <tr>
-                    <th className="px-3 py-2">Место</th>
-                    <th className="px-3 py-2">Игрок</th>
-                    <th className="px-3 py-2 text-right">Очки</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedPlayers.map((player, index) => (
-                    <tr
-                      key={player.id}
-                      className={
-                        index === 0
-                          ? 'bg-emerald-500/10 text-emerald-100'
-                          : 'odd:bg-slate-900/60 even:bg-slate-900/30'
-                      }
-                    >
-                      <td className="px-3 py-2 text-sm">{index + 1}</td>
-                      <td className="px-3 py-2 text-sm">{player.name}</td>
-                      <td className="px-3 py-2 text-right text-sm">{player.score}</td>
+              <div className="mt-3 overflow-hidden rounded-xl border border-slate-700 bg-slate-950/80">
+                <table className="w-full border-collapse text-left text-xs">
+                  <thead className="bg-slate-900/80 text-slate-300">
+                    <tr>
+                      <th className="px-3 py-2">Место</th>
+                      <th className="px-3 py-2">Игрок</th>
+                      <th className="px-3 py-2 text-right">Очки</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {sortedPlayers.map((player, index) => (
+                      <tr
+                        key={player.id}
+                        className={
+                          index === 0
+                            ? 'bg-emerald-500/10 text-emerald-100'
+                            : 'odd:bg-slate-900/60 even:bg-slate-900/30'
+                        }
+                      >
+                        <td className="px-3 py-2 text-sm">{index + 1}</td>
+                        <td className="px-3 py-2 text-sm">{player.name}</td>
+                        <td className="px-3 py-2 text-right text-sm">{player.score}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
         ) : (
@@ -104,8 +106,8 @@ export const ResultsScreen = ({ onBackToHome }: ResultsScreenProps) => {
               sortedTeams.length === 0 ? (
                 <p className="mt-2 text-xs text-slate-400">Нет данных по командам.</p>
               ) : (
-                <div className="mt-3 overflow-hidden rounded-xl border border-slate-800 bg-slate-950/80 text-sm">
-                  <table className="w-full border-collapse text-left text-xs">
+                <div className="mt-3 overflow-hidden rounded-xl border border-slate-100 bg-slate-950/80 text-sm">
+                  <table className="w-full text-left text-xs">
                     <thead className="bg-slate-900/80 text-slate-300">
                       <tr>
                         <th className="px-3 py-2">Место</th>
@@ -137,8 +139,8 @@ export const ResultsScreen = ({ onBackToHome }: ResultsScreenProps) => {
                 Похоже, в этой комнате ещё нет игроков.
               </p>
             ) : (
-              <div className="mt-3 overflow-hidden rounded-xl border border-slate-800 bg-slate-950/80 text-sm">
-                <table className="w-full border-collapse text-left text-xs">
+              <div className="mt-3 overflow-hidden rounded-xl border border-slate-100 bg-slate-950/80 text-sm">
+                <table className="w-full text-left text-xs">
                   <thead className="bg-slate-900/80 text-slate-300">
                     <tr>
                       <th className="px-3 py-2">Место</th>

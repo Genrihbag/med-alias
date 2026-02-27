@@ -187,11 +187,11 @@ export const Lobby = ({
                 {currentRoom.players.map((player) => (
                   <li
                     key={player.id}
-                    className="flex items-center justify-between rounded-xl bg-slate-900/80 px-3 py-2"
+                    className="w-full flex items-center justify-between rounded-xl bg-slate-900/80 px-3 py-2"
                   >
-                    <span className="flex justify-between items-center gap-2">
+                    <span className="w-full flex items-center justify-between gap-2">
                       <span className="h-2 w-2 rounded-full bg-violet-400" />
-                      <span>{player.name}</span>
+                      <span className="absolute px-4">{player.name}</span>
                       {player.id === currentRoom.hostId && (
                         <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-300">
                           Оганизатор
