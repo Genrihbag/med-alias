@@ -214,11 +214,6 @@ export const submitGuess = (
   if (!room || room.status !== 'inGame') {
     return { roomsById, result: null }
   }
-
-  if (room.guessShowingResult) {
-    return { roomsById, result: null }
-  }
-
   const { currentQuestionIndex, usedCardIds } = room
   if (
     currentQuestionIndex < 0 ||

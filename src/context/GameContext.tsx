@@ -56,7 +56,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       if (!currentRoom || hasAnswered) return
       if (currentRoom.settings.mode !== 'guess') return
       if (currentRoom.status !== 'inGame') return
-      if (currentRoom.guessShowingResult) return
 
       const result = roomSubmitGuess(answer, usedHint)
       if (!result) return
