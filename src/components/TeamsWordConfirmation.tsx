@@ -25,7 +25,12 @@ export const TeamsWordConfirmation = () => {
   }
 
   const handleConfirm = () => {
-    applyRoundWordConfirmation(overrides)
+    const effective: Record<string, boolean> = {}
+    for (const cardId of shownIds) {
+      const base = isCountedByDefault(cardId)
+      effective[cardId] = cardId in overrides ? overrides[cardId] : base
+    }
+    applyRoundWordConfirmation(effective)
   }
 
   const toggleCard = (cardId: string, value: boolean) => {

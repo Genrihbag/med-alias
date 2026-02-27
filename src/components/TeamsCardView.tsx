@@ -150,7 +150,7 @@ export const TeamsCardView = () => {
                     onClick={() => setFactRevealed(true)}
                     className="w-full rounded-xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white text-center transition hover:bg-sky-500"
                   >
-                    Показать факт (0,5 балла)
+                    Подсказка (-0,5 балла)
                   </button>
                 )}
 
