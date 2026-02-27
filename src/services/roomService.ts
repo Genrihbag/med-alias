@@ -191,6 +191,7 @@ export const startGuessSession = (
     guessLastResult: null,
     guessResultShownAt: null,
     guessCountdownStartedAt: null,
+    guessAnsweredBy: [],
     players: resetPlayers,
   }
 
@@ -248,9 +249,14 @@ export const submitGuess = (
     }
   })
 
+  const prevAnswered = room.guessAnsweredBy ?? []
+  const alreadyAnswered = prevAnswered.includes(userId)
+  const guessAnsweredBy = alreadyAnswered ? prevAnswered : [...prevAnswered, userId]
+
   const updatedRoom: Room = {
     ...room,
     players,
+    guessAnsweredBy,
   }
 
   const result: GuessResult = {
@@ -314,6 +320,7 @@ export const advanceGuessQuestion = (
     guessShowingResult: false,
     guessLastResult: null,
     guessResultShownAt: null,
+    guessAnsweredBy: [],
     status: isLast ? 'finished' : 'inGame',
   }
 

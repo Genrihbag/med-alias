@@ -97,6 +97,8 @@ export interface Room {
   guessStartedAt?: number | null
   /** Guess mode: per-question duration in seconds (snapshot from settings) */
   guessPerQuestionSec?: number | null
+  /** Guess mode: which userIds have already answered this question */
+  guessAnsweredBy?: string[] | null
   /** Guess mode: true while the correct-answer overlay is visible for all clients */
   guessShowingResult?: boolean | null
   /** Guess mode: last answer result info (visible to all clients via polling) */

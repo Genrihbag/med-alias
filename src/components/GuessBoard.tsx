@@ -67,12 +67,18 @@ export const GuessBoard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentRoom?.guessStartedAt, currentRoom?.settings.mode, secondsPerWord, isFinished, isShowingResult])
 
-  // When timer reaches 0 on host, переключаемся в фазу показа правильного ответа
+  // When timer reaches 0 ИЛИ все ответили, хост включает фазу показа правильного ответа
   useEffect(() => {
     if (!isHost || !currentRoom || currentRoom.settings.mode !== 'guess') return
     if (currentRoom.status !== 'inGame') return
     if (currentRoom.guessShowingResult) return
-    if (secondsLeft > 0) return
+
+    const answeredCount = currentRoom.guessAnsweredBy?.length ?? 0
+    const playersCount = currentRoom.players.length
+    const allAnswered = playersCount > 0 && answeredCount >= playersCount
+
+    if (!allAnswered && secondsLeft > 0) return
+
     startGuessResultPhase()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secondsLeft, isHost, currentRoom?.status, currentRoom?.settings.mode, currentRoom?.guessShowingResult])
