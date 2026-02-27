@@ -8,7 +8,6 @@ import type {
 } from '../types'
 import { CATEGORIES } from '../constants/categories'
 import {
-  CARDS,
   getCardsByCategories,
   getCardById,
   hasEnoughCards,
@@ -371,7 +370,7 @@ export function processTeamsCardAction(
   if (!room || room.settings.mode !== 'teams' || !state || state.phase !== 'round') {
     return { roomsById }
   }
-  const { roundCardIds, currentCardIndexInRound, currentTeamIndex } = state
+  const { roundCardIds, currentCardIndexInRound } = state
   if (currentCardIndexInRound >= roundCardIds.length) return { roomsById }
   const cardId = roundCardIds[currentCardIndexInRound]
   const card = getCardById(cardId)

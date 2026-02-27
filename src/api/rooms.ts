@@ -4,16 +4,15 @@ export type Room = import('../types').Room
 export type RoomSettings = import('../types').RoomSettings
 export type AuthUser = import('../types').AuthUser
 
-async function request<T>(
-  path: string,
-  options?: RequestInit & { body?: unknown },
-): Promise<T> {
+type RequestOpts = Omit<RequestInit, 'body'> & { body?: unknown }
+
+async function request<T>(path: string, options?: RequestOpts): Promise<T> {
   const { body, ...rest } = options ?? {}
   const res = await fetch(`${BASE}${path}`, {
     ...rest,
     headers: {
       'Content-Type': 'application/json',
-      ...rest.headers,
+      ...(rest.headers ?? {}),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   })

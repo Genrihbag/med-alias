@@ -11,7 +11,7 @@ interface WelcomeScreenProps {
 
 const MODE_LABELS: Record<GameMode, string> = {
   teams: 'Командный режим',
-  guess: 'Угадайка',
+  guess: 'Онлайн режим',
 }
 
 export const WelcomeScreen = ({ onSelectMode, onJoinRoomByCode }: WelcomeScreenProps) => {

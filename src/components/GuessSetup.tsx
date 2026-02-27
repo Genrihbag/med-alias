@@ -67,7 +67,7 @@ export const GuessSetup = ({ onBack, onCreated }: GuessSetupProps) => {
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="mb-1 text-sm text-violet-400">Режим</p>
-            <h1 className="text-2xl font-semibold">Угадайка</h1>
+            <h1 className="text-2xl font-semibold">Онлайн режим</h1>
             <p className="mt-1 text-xs text-slate-300">
               Онлайн-квиз без ведущего: каждый игрок отвечает на одни и те же вопросы, очки
               считаются по игрокам.
@@ -116,7 +116,7 @@ export const GuessSetup = ({ onBack, onCreated }: GuessSetupProps) => {
         <section className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
           <h2 className="text-sm font-semibold text-slate-100">Количество слов</h2>
           <p className="text-xs text-slate-400">
-            Шаг {GUESS_WORD_STEP}, от {GUESS_WORD_MIN} до {GUESS_WORD_MAX}. В выбранных категориях
+            Выберите количество слов до {GUESS_WORD_MAX}. В выбранных категориях
             должно хватать карточек.
           </p>
           <div className="flex items-center justify-center gap-4">

@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { CATEGORIES } from '../constants/categories'
 import { getCardById } from '../data/cards'

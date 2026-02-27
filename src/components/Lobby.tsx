@@ -18,7 +18,7 @@ const modeLabel = (mode: GameMode): string => {
     case 'teams':
       return 'Командный режим'
     case 'guess':
-      return 'Угадайка'
+      return 'Онлайн режим'
     default:
       return mode
   }
