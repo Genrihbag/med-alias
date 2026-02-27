@@ -64,7 +64,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
   const submitGuess = useCallback(
     (answer: string, usedHint?: boolean) => {
-      if (!isGuessMode || !currentRoom || hasAnswered) return
+      if (!currentRoom || hasAnswered) return
+      if (currentRoom.settings.mode !== 'guess') return
       if (currentRoom.status !== 'inGame') return
       if (currentRoom.guessShowingResult) return
 
@@ -74,7 +75,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       setLastResult(result)
       setHasAnswered(true)
     },
-    [currentRoom, hasAnswered, isGuessMode, roomSubmitGuess],
+    [currentRoom, hasAnswered, roomSubmitGuess],
   )
 
   const resetGame = useCallback(() => {

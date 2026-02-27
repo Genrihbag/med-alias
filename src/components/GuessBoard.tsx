@@ -280,15 +280,16 @@ export const GuessBoard = () => {
               placeholder="Введите слово"
             />
           </label>
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={hasAnswered || isFinished || isShowingResult}
-              className="rounded-xl bg-violet-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-violet-500/30 transition hover:bg-violet-300 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              Ответить
-            </button>
-          </div>
+          {!hasAnswered && !isFinished && !isShowingResult && (
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                className="rounded-xl bg-violet-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-violet-500/30 transition hover:bg-violet-300"
+              >
+                Ответить
+              </button>
+            </div>
+          )}
         </form>
 
         {isFinished && (
