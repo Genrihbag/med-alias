@@ -213,7 +213,7 @@ export const Lobby = ({
                     key={player.id}
                     className="w-full flex items-center justify-between rounded-xl bg-slate-900/80 px-3 py-2"
                   >
-                    <span className="w-full flex items-center justify-between gap-2 py-2">
+                    <span className="w-full flex items-center justify-between gap-2">
                       <span className="h-2 w-2 rounded-full bg-violet-400" />
                       <span className="absolute px-4">{player.name}</span>
                       {player.id === currentRoom.hostId && (
