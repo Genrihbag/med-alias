@@ -15,7 +15,6 @@ interface GameContextValue {
   mode: GameMode | null
   hasAnswered: boolean
   lastResult: GuessResult | null
-  questionNumber: number
   selectMode: (mode: GameMode) => void
   startGuessGame: () => void
   submitGuess: (answer: string, usedHint?: boolean) => void
@@ -34,7 +33,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const [mode, setMode] = useState<GameMode | null>(null)
   const [hasAnswered, setHasAnswered] = useState(false)
   const [lastResult, setLastResult] = useState<GuessResult | null>(null)
-  const [questionNumber, setQuestionNumber] = useState(1)
 
   const isGuessMode = useMemo(() => mode === 'guess', [mode])
 
@@ -42,7 +40,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     setMode(nextMode)
     setHasAnswered(false)
     setLastResult(null)
-    setQuestionNumber(1)
   }, [])
 
   const startGuessGame = useCallback(() => {
@@ -50,12 +47,12 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     startGuessSession()
     setHasAnswered(false)
     setLastResult(null)
-    setQuestionNumber(1)
   }, [isGuessMode, startGuessSession])
 
   const submitGuess = useCallback(
     (answer: string, usedHint?: boolean) => {
       if (!isGuessMode || !currentRoom || hasAnswered) return
+      if (currentRoom.status !== 'inGame') return
 
       const result = roomSubmitGuess(answer, usedHint)
       if (!result) return
@@ -73,21 +70,18 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
     setHasAnswered(false)
     setLastResult(null)
-    setQuestionNumber((prev) => prev + 1)
   }, [currentRoom, isGuessMode])
 
   const resetGame = useCallback(() => {
     setMode(null)
     setHasAnswered(false)
     setLastResult(null)
-    setQuestionNumber(1)
   }, [])
 
   const value: GameContextValue = {
     mode,
     hasAnswered,
     lastResult,
-    questionNumber,
     selectMode,
     startGuessGame,
     submitGuess,

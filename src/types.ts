@@ -93,6 +93,10 @@ export interface Room {
   status: RoomStatus
   currentQuestionIndex: number
   usedCardIds: string[]
+  /** Guess mode: timestamp (ms) when current question started */
+  guessStartedAt?: number | null
+  /** Guess mode: per-question duration in seconds (snapshot from settings) */
+  guessPerQuestionSec?: number | null
   /** Set when mode is teams and game has started */
   teamsGameState?: TeamsGameState | null
 }

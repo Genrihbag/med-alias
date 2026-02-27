@@ -185,6 +185,8 @@ export const startGuessSession = (
     status: 'inGame',
     currentQuestionIndex: 0,
     usedCardIds,
+    guessStartedAt: Date.now(),
+    guessPerQuestionSec: room.settings.roundDurationSec ?? 60,
     players: resetPlayers,
   }
 
@@ -253,9 +255,11 @@ export const submitGuess = (
   const updatedRoom: Room = {
     ...room,
     players,
+    // при переходе к следующему вопросу обновляем серверное время старта
     currentQuestionIndex: isLastQuestion
       ? currentQuestionIndex
       : currentQuestionIndex + 1,
+    guessStartedAt: isLastQuestion ? room.guessStartedAt ?? null : Date.now(),
     status: isLastQuestion ? 'finished' : 'inGame',
   }
 

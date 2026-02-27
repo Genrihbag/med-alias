@@ -13,13 +13,13 @@ const preventCopy = (e: React.ClipboardEvent) => {
 
 export const GuessBoard = () => {
   const { currentRoom } = useRoom()
-  const { hasAnswered, lastResult, questionNumber, submitGuess, nextQuestion } = useGame()
+  const { hasAnswered, lastResult, submitGuess, nextQuestion } = useGame()
   const [answer, setAnswer] = useState('')
   const [usedHint, setUsedHint] = useState(false)
   const [showEmptyConfirm, setShowEmptyConfirm] = useState(false)
   const [hintRevealed, setHintRevealed] = useState(false)
   const [correctAnswerSecondsLeft, setCorrectAnswerSecondsLeft] = useState<number | null>(null)
-  const secondsPerWord = currentRoom?.settings.roundDurationSec ?? 60
+  const secondsPerWord = currentRoom?.guessPerQuestionSec ?? currentRoom?.settings.roundDurationSec ?? 60
   const [secondsLeft, setSecondsLeft] = useState(secondsPerWord)
 
   const totalQuestions =
@@ -44,32 +44,28 @@ export const GuessBoard = () => {
   }, [answer, hasAnswered, isFinished, submitGuess, usedHint])
 
   useEffect(() => {
-    if (!currentRoom || currentRoom.settings.mode !== 'guess' || isFinished || hasAnswered) return
-    const perWord = currentRoom.settings.roundDurationSec ?? 60
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setSecondsLeft(perWord)
-  }, [currentRoom?.currentQuestionIndex, currentRoom?.settings.mode, currentRoom?.settings.roundDurationSec, isFinished, hasAnswered])
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // при смене вопроса сбрасываем локальные флаги подсказки
     setUsedHint(false)
     setHintRevealed(false)
   }, [currentRoom?.currentQuestionIndex])
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+  // синхронный таймер угадайки на основе серверного guessStartedAt
   useEffect(() => {
-    if (hasAnswered || isFinished || !currentCard) return
-    const t = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
-          clearInterval(t)
-          return 0
-        }
-        return s - 1
-      })
-    }, 1000)
+    if (!currentRoom || currentRoom.settings.mode !== 'guess') return
+    if (!currentRoom.guessStartedAt || isFinished) return
+
+    const recompute = () => {
+      const elapsedSec = Math.floor((Date.now() - currentRoom.guessStartedAt!) / 1000)
+      const left = Math.max(0, secondsPerWord - elapsedSec)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSecondsLeft(left)
+    }
+
+    recompute()
+    const t = setInterval(recompute, 1000)
     return () => clearInterval(t)
-  }, [currentCard, hasAnswered, isFinished])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentRoom?.guessStartedAt, currentRoom?.settings.mode, secondsPerWord, isFinished])
 
   useEffect(() => {
     if (secondsLeft === 0 && !hasAnswered && !isFinished) {
@@ -147,6 +143,11 @@ export const GuessBoard = () => {
 
   const showCorrectAnswerScreen = hasAnswered && lastResult && correctAnswerSecondsLeft !== null
 
+  const currentQuestionNumber =
+    currentRoom && currentRoom.usedCardIds.length > 0
+      ? Math.min(currentRoom.currentQuestionIndex + 1, totalQuestions || currentRoom.usedCardIds.length)
+      : 1
+
   return (
     <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 px-4 text-slate-100">
       {showEmptyConfirm && (
@@ -193,7 +194,7 @@ export const GuessBoard = () => {
           <div>
             <p className="mb-1 text-sm text-violet-400">Онлайн игра</p>
             <h1 className="text-2xl font-semibold">
-              Слово {Math.min(questionNumber, totalQuestions)} / {totalQuestions || '?'}
+              Слово {currentQuestionNumber} / {totalQuestions || '?'}
             </h1>
           </div>
           <div className="flex items-center gap-4">
