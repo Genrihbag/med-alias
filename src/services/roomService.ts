@@ -272,11 +272,6 @@ export const submitGuess = (
   }
 }
 
-function getExcludeIdsForTeamsRound(state: TeamsGameState): string[] {
-  const fromLast3 = state.last3RoundCardIds.flat()
-  return [...state.usedCardIdsInGame, ...fromLast3]
-}
-
 export type TeamsCardAction = 'skip' | 'accept' | 'fact'
 
 export function startTeamsGame(
@@ -291,9 +286,8 @@ export function startTeamsGame(
     room.settings.categories.length > 0
       ? room.settings.categories
       : (Object.keys(CATEGORIES) as CategoryId[])
-  const roundDurationSec = room.settings.roundDurationSec ?? 60
-  const cardsToPick = Math.max(5, Math.ceil(roundDurationSec / 8))
   const sourceCards = getCardsByCategories(categories)
+  const cardsToPick = sourceCards.length
   const picked = pickRandomCardsExcluding(sourceCards, cardsToPick, [])
   const roundCardIds = picked.map((c) => c.id)
   const state: TeamsGameState = {
@@ -327,16 +321,8 @@ export function startTeamsRound(
   if (!room || room.settings.mode !== 'teams' || !state) {
     return { roomsById, room: null }
   }
-  const excludeIds = getExcludeIdsForTeamsRound(state)
-  const categories =
-    room.settings.categories.length > 0
-      ? room.settings.categories
-      : (Object.keys(CATEGORIES) as CategoryId[])
-  const roundDurationSec = room.settings.roundDurationSec ?? 60
-  const cardsToPick = Math.max(5, Math.ceil(roundDurationSec / 8))
-  const sourceCards = getCardsByCategories(categories)
-  const picked = pickRandomCardsExcluding(sourceCards, cardsToPick, excludeIds)
-  const roundCardIds = picked.map((c) => c.id)
+  // Для следующих раундов переиспользуем тот же набор карточек, чтобы не исчерпывать колоду.
+  const roundCardIds = state.roundCardIds
   const nextRound = state.currentRound + 1
   const nextTeamIndex = (state.currentTeamIndex + 1) % room.teams.length
   const last3 = [...state.last3RoundCardIds, state.roundCardIds].slice(-3)
@@ -364,6 +350,7 @@ export function processTeamsCardAction(
   roomsById: RoomsById,
   roomId: string,
   action: TeamsCardAction,
+  endRound?: boolean,
 ): { roomsById: RoomsById } {
   const room = roomsById[roomId]
   const state = room?.teamsGameState
@@ -379,7 +366,7 @@ export function processTeamsCardAction(
   const roundCardActions = { ...(state.roundCardActions ?? {}), [cardId]: action }
   const usedInGame = [...state.usedCardIdsInGame, cardId]
   const nextIndex = currentCardIndexInRound + 1
-  const roundOver = nextIndex >= roundCardIds.length
+  const roundOver = !!endRound || nextIndex >= roundCardIds.length
   const newState: TeamsGameState = {
     ...state,
     roundCardActions,
@@ -409,7 +396,8 @@ export function applyRoundWordConfirmation(
   }
   const { roundCardIds, currentTeamIndex, roundCardActions = {} } = state
   let totalDelta = 0
-  for (const cardId of roundCardIds) {
+  const shownIds = roundCardIds.filter((id) => roundCardActions[id] != null)
+  for (const cardId of shownIds) {
     if (countByCardId[cardId]) {
       const action = roundCardActions[cardId] ?? 'skip'
       if (action === 'accept') {

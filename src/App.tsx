@@ -146,7 +146,7 @@ const App = () => {
 
   if (view === 'lobby' && !currentRoom) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 text-slate-100">
         {showCreatingRoom && <p className="text-slate-400">Загрузка комнаты…</p>}
       </div>
     )

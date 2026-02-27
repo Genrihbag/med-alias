@@ -77,7 +77,7 @@ export const Lobby = ({
 
   if (!currentRoom) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 text-slate-100">
         <div className="rounded-xl bg-slate-900/80 px-6 py-4 text-center shadow-lg">
           Комната не найдена или ещё не создана.
         </div>
@@ -118,7 +118,7 @@ export const Lobby = ({
     (currentRoom.settings.mode === 'guess' && guessCountdown !== null && guessCountdown > 0)
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100">
+    <div className="relative flex min-h-[100svh] items-center justify-center bg-slate-950 px-4 text-slate-100">
       {copyToast && (
         <div className="fixed left-0 right-0 top-0 z-50 flex justify-center pt-4">
           <p className="rounded-lg border border-emerald-600/80 bg-emerald-950/90 px-4 py-2 text-sm font-medium text-emerald-200 shadow-lg">

@@ -180,8 +180,15 @@ export const TeamsSetup = ({ onBack, onCreated }: TeamsSetupProps) => {
   if (step === 'categories') {
     return (
       <>
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100">
-        <div className="w-full max-w-3xl space-y-6 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
+      <div className="flex min-h-dvh items-center justify-center bg-slate-950 px-4 py-4 text-slate-100">
+      <button
+              type="button"
+              onClick={() => setShowRules(true)}
+              className="absolute right-4 top-4 rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
+            >
+              Правила
+            </button>
+        <div className="w-full max-w-3xl flex-1 flex-col space-y-8 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
           {header}
           <section className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
             <p className="text-xs text-slate-400">
@@ -216,13 +223,6 @@ export const TeamsSetup = ({ onBack, onCreated }: TeamsSetupProps) => {
             <span />
             <button
               type="button"
-              onClick={() => setShowRules(true)}
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
-            >
-              Правила
-            </button>
-            <button
-              type="button"
               disabled={!canGoNextFromCategories}
               onClick={() => setStep('players')}
               className="rounded-lg bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
@@ -244,12 +244,16 @@ export const TeamsSetup = ({ onBack, onCreated }: TeamsSetupProps) => {
   if (step === 'players') {
     return (
       <>
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-4 text-slate-100">
-        <div className="w-full max-w-3xl space-y-8 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-slate-950 px-4 py-4 text-slate-100">
+      <button
+              type="button"
+              onClick={() => setShowRules(true)}
+              className="absolute right-4 top-4 rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
+            >
+              Правила
+            </button>
+        <div className="flex w-full max-w-3xl flex-1 flex-col space-y-8 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
           {header}
-          <p className="text-center text-xs text-slate-400">
-            Сколько человек будет играть? (от {MIN_PLAYERS} до {MAX_PLAYERS})
-          </p>
           <div className="flex flex-1 flex-col items-center justify-center gap-4">
             <div className="flex items-center justify-center gap-6">
               <button
@@ -282,6 +286,9 @@ export const TeamsSetup = ({ onBack, onCreated }: TeamsSetupProps) => {
                 +
               </button>
             </div>
+            <p className="text-center text-xs text-slate-400">
+            Сколько человек будет играть? (от {MIN_PLAYERS} до {MAX_PLAYERS})
+          </p>
           </div>
           <div className="flex items-center justify-between gap-4">
             <button
@@ -290,13 +297,6 @@ export const TeamsSetup = ({ onBack, onCreated }: TeamsSetupProps) => {
               className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
             >
               Назад
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowRules(true)}
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
-            >
-              Правила
             </button>
             <button
               type="button"
@@ -320,7 +320,14 @@ export const TeamsSetup = ({ onBack, onCreated }: TeamsSetupProps) => {
   if (step === 'teams') {
     return (
       <>
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-4 py-8 text-slate-100">
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-slate-950 px-4 py-4 text-slate-100">
+      <button
+              type="button"
+              onClick={() => setShowRules(true)}
+              className="absolute right-4 top-4 rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
+            >
+              Правила
+            </button>
         <div className="mx-auto w-full max-w-3xl space-y-6 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
           {header}
           <p className="text-xs text-slate-400">
@@ -410,13 +417,6 @@ export const TeamsSetup = ({ onBack, onCreated }: TeamsSetupProps) => {
             </button>
             <button
               type="button"
-              onClick={() => setShowRules(true)}
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
-            >
-              Правила
-            </button>
-            <button
-              type="button"
               onClick={() => setStep('roundSettings')}
               className="rounded-lg bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950"
             >
@@ -436,7 +436,14 @@ export const TeamsSetup = ({ onBack, onCreated }: TeamsSetupProps) => {
 
   // step === 'roundSettings'
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100">
+    <div className="flex min-h-dvh items-center justify-center bg-slate-950 px-4 py-4 text-slate-100">
+      <button
+            type="button"
+            onClick={() => setShowRules(true)}
+            className="absolute right-4 top-4 rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
+          >
+            Правила
+          </button>
       <div className="w-full max-w-3xl space-y-6 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
         {header}
         <section className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
@@ -534,13 +541,6 @@ export const TeamsSetup = ({ onBack, onCreated }: TeamsSetupProps) => {
             className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
           >
             Назад
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowRules(true)}
-            className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
-          >
-            Правила
           </button>
           <div className="flex items-center gap-2">
             {!user && (

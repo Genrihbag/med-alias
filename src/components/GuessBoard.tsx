@@ -98,7 +98,7 @@ export const GuessBoard = () => {
 
   if (!currentRoom || currentRoom.settings.mode !== 'guess') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 text-slate-100">
         <div className="rounded-xl bg-slate-900/80 px-6 py-4 text-center shadow-lg">
           Сессия Угадайки не найдена.
         </div>
@@ -108,9 +108,9 @@ export const GuessBoard = () => {
 
   if (!currentCard) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 text-slate-100">
         <div className="rounded-xl bg-slate-900/80 px-6 py-4 text-center shadow-lg">
-          Вопросы ещё не готовы. Попросите ведущего начать сессию.
+          Вопросы ещё не готовы. Попросите организатора начать сессию.
         </div>
       </div>
     )
@@ -143,7 +143,7 @@ export const GuessBoard = () => {
   const showCorrectAnswerScreen = hasAnswered && lastResult && correctAnswerSecondsLeft !== null
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100">
+    <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 px-4 text-slate-100">
       {showEmptyConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4">
           <div className="w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-xl">
@@ -186,23 +186,15 @@ export const GuessBoard = () => {
       <div className="w-full max-w-3xl space-y-6 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
         <header className="flex items-start justify-between gap-4">
           <div>
-            <p className="mb-1 text-sm text-violet-400">Угадайка</p>
+            <p className="mb-1 text-sm text-violet-400">Онлайн игра</p>
             <h1 className="text-2xl font-semibold">
               Слово {Math.min(questionNumber, totalQuestions)} / {totalQuestions || '?'}
             </h1>
           </div>
           <div className="flex items-center gap-4">
             <div className="rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2 text-center">
-              <p className="text-[11px] uppercase tracking-wide text-slate-400">Таймер</p>
               <p className="text-xl font-mono font-semibold tabular-nums text-slate-100">
                 {hasAnswered ? '—' : secondsLeft}
-              </p>
-            </div>
-            <div className="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs text-slate-300">
-              <p className="text-[11px] uppercase tracking-wide text-slate-400">Категория</p>
-              <p className="mt-1 flex items-center gap-2 text-sm text-slate-100">
-                <span className="text-lg">{categoryMeta.icon}</span>
-                <span>{categoryMeta.label}</span>
               </p>
             </div>
           </div>
@@ -220,10 +212,19 @@ export const GuessBoard = () => {
         </section>
 
         {currentCard.forbidden.length > 0 && (
-          <section className="rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
-            <p className="text-[11px] uppercase tracking-wide text-slate-400">Запрещённые слова</p>
+          <section className="rounded-2xl border border-emerald-600/60 bg-emerald-900/40 p-4">
+            <p className="text-[11px] uppercase tracking-wide text-emerald-300">Подсказки</p>
             {hintRevealed ? (
-              <p className="mt-2 text-sm text-amber-300">{currentCard.forbidden.join(', ')}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {currentCard.forbidden.map((word) => (
+                  <span
+                    key={word}
+                    className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-emerald-50"
+                  >
+                    {word}
+                  </span>
+                ))}
+              </div>
             ) : (
               <button
                 type="button"
@@ -232,13 +233,18 @@ export const GuessBoard = () => {
                   setUsedHint(true)
                 }}
                 disabled={hasAnswered || isFinished}
-                className="mt-2 rounded-lg border border-amber-600/50 bg-amber-500/10 px-3 py-1.5 text-sm text-amber-400 hover:bg-amber-500/20 disabled:opacity-50"
+                className="mt-2 w-full rounded-lg border border-emerald-500/60 bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50"
               >
-                Подсказка (−0.5 балла)
+                Показать подсказки (−0.5 балла)
               </button>
             )}
           </section>
         )}
+
+        <div className="rounded-xl border border-slate-600 bg-slate-800/50 py-2 text-center text-sm text-slate-300">
+          <span className="mr-1 text-lg">{categoryMeta.icon}</span>
+          <span>{categoryMeta.label}</span>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <label className="block text-xs font-medium text-slate-200">

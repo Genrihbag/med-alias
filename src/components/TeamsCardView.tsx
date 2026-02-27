@@ -39,7 +39,7 @@ export const TeamsCardView = () => {
 
   if (!currentRoom || currentRoom.settings.mode !== 'teams' || !state || state.phase !== 'round') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 text-slate-100">
         <div className="rounded-xl bg-slate-900/80 px-6 py-4 text-center shadow-lg">
           Нет активной карточки.
         </div>
@@ -49,7 +49,7 @@ export const TeamsCardView = () => {
 
   if (!card) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 text-slate-100">
         <div className="rounded-xl bg-slate-900/80 px-6 py-4 text-center shadow-lg">
           Раунд завершён. Перейдите к результатам.
         </div>
@@ -73,7 +73,7 @@ export const TeamsCardView = () => {
   const footerWithFactOnly = showFactButton && factRevealed
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-950 px-4 py-8 text-slate-100">
+    <div className="flex min-h-[100svh] flex-col bg-slate-950 px-4 py-8 text-slate-100">
       <div className="mx-auto w-full max-w-3xl space-y-6">
         <header className="flex items-start justify-between gap-4 rounded-2xl border border-slate-700 bg-slate-900/80 p-4">
           <div>
@@ -84,7 +84,6 @@ export const TeamsCardView = () => {
           </div>
           {secondsLeft != null && (
             <div className="shrink-0 rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-2 text-center">
-              <p className="text-[10px] uppercase text-slate-400">Таймер</p>
               <p className="text-xl font-mono font-semibold tabular-nums text-slate-100">{secondsLeft}</p>
             </div>
           )}
@@ -122,54 +121,58 @@ export const TeamsCardView = () => {
           </div>
         </section>
 
-        <footer className="fixed bottom-0 left-0 right-0 flex flex-col items-center border-t border-slate-800 bg-slate-950/95 pt-4 pb-6">
-          <div className="flex items-center justify-center gap-4">
+        <footer className="fixed bottom-0 left-0 right-0 border-t border-slate-800 bg-slate-950/95 px-4 pt-4 pb-6">
+          <div className="mx-auto flex w-full max-w-3xl flex-col gap-3">
             {footerWithFactOnly ? (
-              <>
+              <div className="flex w-full gap-4">
                 <button
                   type="button"
-                  onClick={() => processTeamsCardAction('skip')}
-                  className="rounded-xl bg-red-700 px-8 py-3 text-sm font-semibold text-white transition hover:bg-red-600"
+                  onClick={() => processTeamsCardAction('skip', timeExpired)}
+                  className="w-1/2 rounded-xl bg-red-700 px-6 py-3 text-sm font-semibold text-white text-center transition hover:bg-red-600"
                 >
                   Пропустить
                 </button>
                 <button
                   type="button"
-                  onClick={() => processTeamsCardAction('fact')}
-                  className="rounded-xl bg-emerald-600 px-8 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500"
+                  onClick={() => processTeamsCardAction('fact', false)}
+                  className="w-1/2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white text-center transition hover:bg-emerald-500"
                 >
                   Принять
                 </button>
-              </>
+              </div>
             ) : (
               <>
-                <button
-                  type="button"
-                  onClick={() => processTeamsCardAction('skip')}
-                  className="rounded-xl bg-red-700 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-600"
-                >
-                  Пропустить
-                </button>
                 {showFactButton && !factRevealed && (
                   <button
                     type="button"
                     onClick={() => setFactRevealed(true)}
-                    className="rounded-xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-sky-500"
+                    className="w-full rounded-xl bg-sky-600 px-6 py-3 text-sm font-semibold text-white text-center transition hover:bg-sky-500"
                   >
                     Показать факт (0,5 балла)
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={() => processTeamsCardAction('accept')}
-                  className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500"
-                >
-                  Принять (команда угадала)
-                </button>
+
+                <div className="flex w-full gap-4">
+                  <button
+                    type="button"
+                    onClick={() => processTeamsCardAction('skip', timeExpired)}
+                    className="w-1/2 rounded-xl bg-red-700 px-6 py-3 text-sm font-semibold text-white text-center transition hover:bg-red-600"
+                  >
+                    Пропустить
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => processTeamsCardAction('accept', timeExpired)}
+                    className="w-1/2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white text-center transition hover:bg-emerald-500"
+                  >
+                    Принять
+                  </button>
+                </div>
               </>
             )}
           </div>
         </footer>
+
       </div>
     </div>
   )

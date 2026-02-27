@@ -43,7 +43,7 @@ interface RoomContextValue {
   submitGuess: (answer: string, usedHint?: boolean) => GuessResult | null
   startTeamsGame: () => Room | null
   startTeamsRound: () => Room | null
-  processTeamsCardAction: (action: TeamsCardAction) => void
+  processTeamsCardAction: (action: TeamsCardAction, endRound?: boolean) => void
   applyRoundWordConfirmation: (countByCardId: Record<string, boolean>) => void
   finishTeamsGame: () => void
   resetRoomState: () => void
@@ -84,8 +84,7 @@ interface RoomProviderProps {
   children: ReactNode
 }
 
-const getInitialRooms = (): RoomsById =>
-  isApiEnabled() ? {} : loadRoomsFromStorage()
+const getInitialRooms = (): RoomsById => (isApiEnabled() ? {} : loadRoomsFromStorage())
 
 export const RoomProvider = ({ children }: RoomProviderProps) => {
   const { user } = useAuth()
@@ -284,10 +283,15 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
   }, [currentRoomId])
 
   const processTeamsCardAction = useCallback(
-    (action: TeamsCardAction) => {
+    (action: TeamsCardAction, endRound?: boolean) => {
       if (!currentRoomId) return
       setRoomsById((prev) => {
-        const { roomsById: nextRooms } = svcProcessTeamsCardAction(prev, currentRoomId, action)
+        const { roomsById: nextRooms } = svcProcessTeamsCardAction(
+          prev,
+          currentRoomId,
+          action,
+          endRound,
+        )
         const room = nextRooms[currentRoomId]
         if (isApiEnabled() && room) apiUpdateRoom(room).catch(console.error)
         return nextRooms

@@ -2,12 +2,15 @@ import express from 'express'
 import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import crypto from 'crypto'
 import { loadRooms, saveRooms } from './store.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const PORT = process.env.PORT || 3001
 const isProd = process.env.NODE_ENV === 'production'
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || ''
+const hasTelegram = Boolean(TELEGRAM_BOT_TOKEN)
 
 app.use(cors({ origin: true }))
 app.use(express.json())
@@ -47,6 +50,41 @@ function createInitialRoom(id, host, settings) {
     currentQuestionIndex: 0,
     usedCardIds: [],
   }
+}
+
+function buildTelegramCheckString(search) {
+  const entries = Array.from(search.entries())
+    .filter(([key]) => key !== 'hash')
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => `${key}=${value}`)
+  return entries.join('\n')
+}
+
+function verifyTelegramInitData(initData) {
+  if (!hasTelegram || !initData) return { ok: false, user: null }
+  const search = new URLSearchParams(initData)
+  const hash = search.get('hash')
+  if (!hash) return { ok: false, user: null }
+
+  const dataCheckString = buildTelegramCheckString(search)
+  const secretKey = crypto.createHash('sha256').update(TELEGRAM_BOT_TOKEN).digest()
+  const computedHash = crypto
+    .createHmac('sha256', secretKey)
+    .update(dataCheckString)
+    .digest('hex')
+
+  if (computedHash !== hash) return { ok: false, user: null }
+
+  const userJson = search.get('user')
+  let user = null
+  if (userJson) {
+    try {
+      user = JSON.parse(userJson)
+    } catch {
+      user = null
+    }
+  }
+  return { ok: true, user }
 }
 
 app.post('/api/rooms', (req, res) => {
@@ -126,6 +164,25 @@ app.patch('/api/rooms/:id', (req, res) => {
     res.status(500).json({ error: String(e.message) })
   }
 })
+
+if (hasTelegram) {
+  app.post('/api/telegram/validate', (req, res) => {
+    try {
+      const { initData } = req.body ?? {}
+      if (typeof initData !== 'string' || !initData) {
+        return res.status(400).json({ error: 'initData required' })
+      }
+      const { ok, user } = verifyTelegramInitData(initData)
+      if (!ok) {
+        return res.status(401).json({ error: 'invalid initData' })
+      }
+      return res.json({ ok: true, user })
+    } catch (e) {
+      console.error(e)
+      res.status(500).json({ error: String(e.message) })
+    }
+  })
+}
 
 // Production: serve frontend from dist (build with VITE_API_URL='' for same-origin)
 if (isProd) {

@@ -50,7 +50,7 @@ export const TeamsRoundResults = ({ onBackToHome }: TeamsRoundResultsProps) => {
   const showCountdown = countdown !== null && countdown > 0
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-950 px-4 py-8 text-slate-100">
+    <div className="flex min-h-[100svh] flex-col bg-slate-950 px-4 py-8 text-slate-100">
       {showCountdown && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/95">
           <p className="text-slate-400">Раунд начнётся через</p>

@@ -1,4 +1,6 @@
-const BASE = import.meta.env.VITE_API_URL ?? ''
+const rawBase = import.meta.env.VITE_API_URL
+// Если VITE_API_URL не задан, используем относительные пути (`/api/...`) на тот же домен.
+const BASE = typeof rawBase === 'string' && rawBase.length > 0 ? rawBase : ''
 
 export type Room = import('../types').Room
 export type RoomSettings = import('../types').RoomSettings
@@ -57,5 +59,6 @@ export async function apiUpdateRoom(room: Room): Promise<Room> {
 }
 
 export function isApiEnabled(): boolean {
-  return Boolean(BASE)
+  // В продакшене всегда работаем через API (тот же хост), в dev — только если задан VITE_API_URL.
+  return import.meta.env.PROD || Boolean(rawBase)
 }

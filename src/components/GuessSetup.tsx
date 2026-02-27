@@ -62,7 +62,7 @@ export const GuessSetup = ({ onBack, onCreated }: GuessSetupProps) => {
 
   return (
     <>
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100">
+    <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 px-4 text-slate-100">
       <div className="w-full max-w-3xl space-y-6 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
         <div className="flex items-center justify-between gap-4">
           <div>

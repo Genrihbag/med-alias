@@ -21,7 +21,7 @@ export const WelcomeScreen = ({ onSelectMode, onJoinRoomByCode }: WelcomeScreenP
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 text-slate-100">
         <div className="rounded-xl bg-slate-900/80 px-6 py-4 text-center shadow-lg">
           Загрузка...
         </div>
@@ -46,7 +46,7 @@ export const WelcomeScreen = ({ onSelectMode, onJoinRoomByCode }: WelcomeScreenP
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+      <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 text-slate-100">
         <div className="w-full max-w-md rounded-2xl bg-slate-900/80 p-6 shadow-2xl">
           <h1 className="mb-4 text-center text-2xl font-semibold">
             Добро пожаловать в МедАлиас
@@ -79,7 +79,7 @@ export const WelcomeScreen = ({ onSelectMode, onJoinRoomByCode }: WelcomeScreenP
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 text-slate-100">
+    <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 px-4 text-slate-100">
       <div className="w-full max-w-3xl space-y-8 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
         <div>
           <p className="mb-2 text-sm text-emerald-400">Приветствие</p>
