@@ -1,14 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 
 import type { GameMode, GuessResult } from '../types'
 import { useRoom } from './RoomContext'
@@ -35,8 +26,6 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const [hasAnswered, setHasAnswered] = useState(false)
   const [lastResult, setLastResult] = useState<GuessResult | null>(null)
   const prevQuestionIndexRef = useRef<number>(-1)
-
-  const isGuessMode = useMemo(() => mode === 'guess', [mode])
 
   // Reset hasAnswered when server advances to the next question
   useEffect(() => {
