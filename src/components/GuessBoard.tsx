@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useMemo, useState } from 'react'
+import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 
 import { CATEGORIES } from '../constants/categories'
 import { getCardById } from '../data/cards'
@@ -95,9 +95,19 @@ export const GuessBoard = () => {
     return () => clearInterval(t)
   }, [isShowingResult, currentRoom?.guessResultShownAt])
 
-  // When result timer reaches 0, host advances to next question
+  // Guard, чтобы не вызвать advanceGuessQuestion дважды для одного результата
+  const hasAdvancedRef = useRef(false)
+
   useEffect(() => {
-    if (resultSecondsLeft <= 0 && isShowingResult && isHost) {
+    if (!isShowingResult) {
+      hasAdvancedRef.current = false
+    }
+  }, [isShowingResult, currentRoom?.currentQuestionIndex])
+
+  // When result timer reaches 0, host advances to next question (однократно)
+  useEffect(() => {
+    if (resultSecondsLeft <= 0 && isShowingResult && isHost && !hasAdvancedRef.current) {
+      hasAdvancedRef.current = true
       advanceGuessQuestion()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -203,7 +213,7 @@ export const GuessBoard = () => {
           <div className="flex items-center gap-4">
             <div className="rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2 text-center">
               <p className="text-xl font-mono font-semibold tabular-nums text-slate-100">
-                {isShowingResult || hasAnswered ? '—' : secondsLeft}
+                {isShowingResult ? resultSecondsLeft : secondsLeft}
               </p>
             </div>
           </div>
