@@ -212,19 +212,22 @@ export const Lobby = ({
                                     <li
                                         key={player.id}
                                         className={`
-                    w-full flex items-center justify-between rounded-xl bg-slate-900/80 px-3 py-2
-                    ${player.id === currentRoom.hostId ? 'border border-violet-400' : ''}
-                                                  `}
+                                        w-full flex items-center justify-between rounded-xl bg-slate-900/80 px-3 py-2
+                                        ${player.id === currentRoom.hostId ? 'border border-violet-400' : ''}
+                                      `}
                                     >
-                    <span className="w-full flex items-center justify-between gap-2 py-2">
-                      <span className="h-2 w-2 rounded-full bg-violet-400"/>
-                      <span className="absolute px-4">{player.name}</span>
-                        {player.id === currentRoom.hostId && (
-                            <span className=" text-[10px] font-semibold uppercase tracking-wide text-violet-300">
-                          Организатор
-                        </span>
-                        )}
-                    </span>
+                                      <span className="flex items-center justify-between gap-2 w-full">
+                                        <span className="flex items-center gap-2">
+                                          <span className="h-2 w-2 rounded-full bg-violet-400" />
+                                          <span>{player.name}</span>
+                                        </span>
+
+                                          {player.id === currentRoom.hostId && (
+                                              <span className="text-[10px] font-semibold uppercase tracking-wide text-violet-300 leading-none">
+                                            Организатор
+                                          </span>
+                                          )}
+                                      </span>
                                     </li>
                                 ))}
                             </ul>
