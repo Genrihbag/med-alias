@@ -59,7 +59,7 @@ export const WelcomeScreen = ({ onSelectMode, onJoinRoomByCode }: WelcomeScreenP
               Имя
               <input
                 autoFocus
-                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40"
+                className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40"
                 type="text"
                 value={nameInput}
                 onChange={(event) => setNameInput(event.target.value)}
@@ -68,7 +68,7 @@ export const WelcomeScreen = ({ onSelectMode, onJoinRoomByCode }: WelcomeScreenP
             </label>
             <button
               type="submit"
-              className="mt-2 w-full rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400"
+              className="mt-2 w-full rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400"
             >
               Продолжить
             </button>
@@ -79,7 +79,7 @@ export const WelcomeScreen = ({ onSelectMode, onJoinRoomByCode }: WelcomeScreenP
   }
 
   return (
-    <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 px-4 text-slate-100">
+    <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 p-4 text-slate-100">
       <div className="w-full max-w-3xl space-y-8 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
         <div>
           <p className="mb-2 text-sm text-emerald-400">Приветствие</p>
@@ -129,13 +129,13 @@ export const WelcomeScreen = ({ onSelectMode, onJoinRoomByCode }: WelcomeScreenP
               value={roomCode}
               onChange={(event) => setRoomCode(event.target.value)}
               placeholder="Например, MED123"
-              className="flex-1 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40"
+              className="flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none ring-0 transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/40"
             />
             <button
               type="button"
               onClick={handleJoinRoom}
               disabled={!onJoinRoomByCode}
-              className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-100 transition enabled:hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-100 transition enabled:hover:bg-emerald-400 enabled:hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Войти
             </button>
@@ -148,7 +148,7 @@ export const WelcomeScreen = ({ onSelectMode, onJoinRoomByCode }: WelcomeScreenP
             {Object.values(CATEGORIES).map((category) => (
               <div
                 key={category.id}
-                className="flex items-center gap-2 rounded-lg bg-slate-900/80 px-3 py-2"
+                className="flex items-center gap-2 rounded-xl bg-slate-900/80 px-3 py-2"
               >
                 <span className="text-lg">{category.icon}</span>
                 <div className="flex flex-col">

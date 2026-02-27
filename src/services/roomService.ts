@@ -129,7 +129,8 @@ export const leaveRoom = (
 
   // if no players left, remove the room entirely
   if (remainingPlayers.length === 0) {
-    const { [roomId]: _, ...rest } = roomsById
+    const rest: RoomsById = { ...roomsById }
+    delete rest[roomId]
     return { roomsById: rest }
   }
 

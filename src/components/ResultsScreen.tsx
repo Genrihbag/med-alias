@@ -172,7 +172,7 @@ export const ResultsScreen = ({ onBackToHome }: ResultsScreenProps) => {
           <button
             type="button"
             onClick={handleBackHome}
-            className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-400"
+            className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-400"
           >
             Главный экран
           </button>

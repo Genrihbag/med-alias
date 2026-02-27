@@ -51,6 +51,7 @@ const App = () => {
     if (roomInUrl && view === 'welcome') {
       setView('lobby')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -109,7 +110,7 @@ const App = () => {
               <button
                 type="button"
                 onClick={handleGoHome}
-                className="mt-6 min-w-[12rem] rounded-lg bg-emerald-500 px-6 py-3 text-sm font-semibold text-slate-950"
+                className="mt-6 min-w-[12rem] rounded-xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-slate-950"
               >
                 Главное меню
               </button>

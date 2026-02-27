@@ -46,14 +46,17 @@ export const GuessBoard = () => {
   useEffect(() => {
     if (!currentRoom || currentRoom.settings.mode !== 'guess' || isFinished || hasAnswered) return
     const perWord = currentRoom.settings.roundDurationSec ?? 60
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSecondsLeft(perWord)
   }, [currentRoom?.currentQuestionIndex, currentRoom?.settings.mode, currentRoom?.settings.roundDurationSec, isFinished, hasAnswered])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUsedHint(false)
     setHintRevealed(false)
   }, [currentRoom?.currentQuestionIndex])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (hasAnswered || isFinished || !currentCard) return
     const t = setInterval(() => {
@@ -70,6 +73,7 @@ export const GuessBoard = () => {
 
   useEffect(() => {
     if (secondsLeft === 0 && !hasAnswered && !isFinished) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       commitAndNext()
     }
   }, [secondsLeft, hasAnswered, isFinished, commitAndNext])
@@ -77,6 +81,7 @@ export const GuessBoard = () => {
   // Start 5s correct-answer screen when user has just answered
   useEffect(() => {
     if (hasAnswered && lastResult && correctAnswerSecondsLeft === null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCorrectAnswerSecondsLeft(CORRECT_ANSWER_DURATION_SEC)
     }
     if (!hasAnswered) setCorrectAnswerSecondsLeft(null)
@@ -154,14 +159,14 @@ export const GuessBoard = () => {
               <button
                 type="button"
                 onClick={() => setShowEmptyConfirm(false)}
-                className="flex-1 rounded-lg border border-slate-600 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800"
+                className="flex-1 rounded-xl border border-slate-600 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800"
               >
                 Отмена
               </button>
               <button
                 type="button"
                 onClick={handleConfirmEmpty}
-                className="flex-1 rounded-lg bg-violet-500 px-3 py-2 text-sm font-medium text-slate-950 hover:bg-violet-400"
+                className="flex-1 rounded-xl bg-violet-500 px-3 py-2 text-sm font-medium text-slate-950 hover:bg-violet-400"
               >
                 Отправить
               </button>
@@ -219,7 +224,7 @@ export const GuessBoard = () => {
                 {currentCard.forbidden.map((word) => (
                   <span
                     key={word}
-                    className="rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-emerald-50"
+                    className="rounded-xl bg-emerald-600 px-3 py-1.5 text-sm font-medium text-emerald-50"
                   >
                     {word}
                   </span>
@@ -233,7 +238,7 @@ export const GuessBoard = () => {
                   setUsedHint(true)
                 }}
                 disabled={hasAnswered || isFinished}
-                className="mt-2 w-full rounded-lg border border-emerald-500/60 bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50"
+                className="mt-2 w-full rounded-xl border border-emerald-500/60 bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-300 hover:bg-emerald-500/20 disabled:opacity-50"
               >
                 Показать подсказки (−0.5 балла)
               </button>
@@ -254,7 +259,7 @@ export const GuessBoard = () => {
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               disabled={hasAnswered || isFinished}
-              className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none transition disabled:cursor-not-allowed disabled:opacity-70 focus:border-violet-400 focus:ring-2 focus:ring-violet-500/40"
+              className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none transition disabled:cursor-not-allowed disabled:opacity-70 focus:border-violet-400 focus:ring-2 focus:ring-violet-500/40"
               placeholder="Введите слово"
             />
           </label>
@@ -262,7 +267,7 @@ export const GuessBoard = () => {
             <button
               type="submit"
               disabled={hasAnswered || isFinished}
-              className="rounded-lg bg-violet-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-violet-500/30 transition hover:bg-violet-300 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-xl bg-violet-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-violet-500/30 transition hover:bg-violet-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Ответить
             </button>

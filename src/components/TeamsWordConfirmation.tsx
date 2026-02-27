@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import { getCardById } from '../data/cards'
 import { useRoom } from '../context/RoomContext'
@@ -8,19 +8,8 @@ export const TeamsWordConfirmation = () => {
   const { currentRoom, applyRoundWordConfirmation } = useRoom()
   const state = currentRoom?.teamsGameState
 
-  const defaultCount = useMemo(() => {
-    const out: Record<string, boolean> = {}
-    if (!state?.roundCardIds || !state.roundCardActions) return out
-    const actions = state.roundCardActions
-    const shownIds = state.roundCardIds.filter((id) => actions[id] != null)
-    for (const cardId of shownIds) {
-      const action = actions[cardId] ?? 'skip'
-      out[cardId] = action === 'accept' || action === 'fact'
-    }
-    return out
-  }, [state?.roundCardIds, state?.roundCardActions])
-
-  const [countByCardId, setCountByCardId] = useState<Record<string, boolean>>(defaultCount)
+  // only user overrides; базовое значение вычисляем на лету из действий раунда
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({})
 
   if (!currentRoom || currentRoom.settings.mode !== 'teams' || !state || state.phase !== 'wordConfirmation') {
     return null
@@ -30,12 +19,17 @@ export const TeamsWordConfirmation = () => {
   const roundCardActions = state.roundCardActions ?? {}
   const shownIds = state.roundCardIds.filter((id) => roundCardActions[id] != null)
 
+  const isCountedByDefault = (cardId: string): boolean => {
+    const action = roundCardActions[cardId] ?? 'skip'
+    return action === 'accept' || action === 'fact'
+  }
+
   const handleConfirm = () => {
-    applyRoundWordConfirmation(countByCardId)
+    applyRoundWordConfirmation(overrides)
   }
 
   const toggleCard = (cardId: string, value: boolean) => {
-    setCountByCardId((prev) => ({ ...prev, [cardId]: value }))
+    setOverrides((prev) => ({ ...prev, [cardId]: value }))
   }
 
   return (
@@ -52,12 +46,13 @@ export const TeamsWordConfirmation = () => {
             {shownIds.map((cardId) => {
               const card = getCardById(cardId)
               const action = roundCardActions[cardId] ?? 'skip'
-              const counted = countByCardId[cardId] ?? defaultCount[cardId]
+              const counted =
+                cardId in overrides ? overrides[cardId] : isCountedByDefault(cardId)
               return (
                 <li
                     key={cardId}
                     className="relative flex items-center justify-between gap-2
-                              rounded-lg border border-slate-700 bg-slate-900/80 px-4 py-3"
+                              rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3"
                   >
                     <span
                       className="min-w-0 max-w-[30%] flex-1 font-medium text-slate-100 whitespace-normal"
@@ -68,7 +63,7 @@ export const TeamsWordConfirmation = () => {
                     {action === 'fact' ? (
                       <span
                         className="absolute right-full mr-3
-                   rounded-lg bg-red-900/70 px-3 py-1 text-sm font-semibold text-red-100"
+                   rounded-xl bg-red-900/70 px-3 py-1 text-sm font-semibold text-red-100"
                       >
                         0.5
                       </span>
@@ -96,7 +91,7 @@ export const TeamsWordConfirmation = () => {
           <button
             type="button"
             onClick={handleConfirm}
-            className="rounded-lg bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/30 transition hover:bg-sky-300"
+            className="rounded-xl bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/30 transition hover:bg-sky-300"
           >
             Подтвердить
           </button>

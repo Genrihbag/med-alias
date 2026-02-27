@@ -44,6 +44,7 @@ export const Lobby = ({
 
   useEffect(() => {
     if (!pendingTeamsCountdown || currentRoom?.settings.mode !== 'teams' || !isHost) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCountdown(5)
   }, [pendingTeamsCountdown, currentRoom?.settings.mode, isHost])
 
@@ -121,7 +122,7 @@ export const Lobby = ({
     <div className="relative flex min-h-[100svh] items-center justify-center bg-slate-950 px-4 text-slate-100">
       {copyToast && (
         <div className="fixed left-0 right-0 top-0 z-50 flex justify-center pt-4">
-          <p className="rounded-lg border border-emerald-600/80 bg-emerald-950/90 px-4 py-2 text-sm font-medium text-emerald-200 shadow-lg">
+          <p className="rounded-xl border border-emerald-600/80 bg-emerald-950/90 px-4 py-2 text-sm font-medium text-emerald-200 shadow-lg">
             Ссылка скопирована
           </p>
         </div>
@@ -136,7 +137,7 @@ export const Lobby = ({
       )}
       <div className="w-full max-w-4xl space-y-6 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
         <div>
-          <p className="mb-1 text-sm text-emerald-400">Лобби</p>
+          <p className="mb-1 text-sm text-violet-400">Лобби</p>
           <h1 className="text-2xl font-semibold">{modeLabel(currentRoom.settings.mode)}</h1>
           <p className="mt-1 text-xs text-slate-300">
             {isGuess
@@ -146,7 +147,7 @@ export const Lobby = ({
         </div>
         {isGuess && (
           <div className="flex flex-col items-center gap-3 text-center">
-            <p className="font-mono text-4xl font-bold tracking-wider text-emerald-400">{currentRoom.id}</p>
+            <p className="font-mono text-4xl font-bold tracking-wider text-violet-400">{currentRoom.id}</p>
             <p className="text-xs uppercase tracking-wide text-slate-400">Код комнаты</p>
             <button
               type="button"
@@ -166,13 +167,13 @@ export const Lobby = ({
               {currentRoom.players.map((player) => (
                 <li
                   key={player.id}
-                  className="flex items-center justify-between rounded-lg bg-slate-900/80 px-3 py-2"
+                  className="flex items-center justify-between rounded-xl bg-slate-900/80 px-3 py-2"
                 >
                   <span className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                    <span className="h-2 w-2 rounded-full bg-violet-400" />
                     <span>{player.name}</span>
                     {player.id === currentRoom.hostId && (
-                      <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-300">
+                      <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-300">
                         Оганизатор
                       </span>
                     )}
@@ -228,7 +229,7 @@ export const Lobby = ({
           <button
             type="button"
             onClick={handleLeave}
-            className="rounded-lg border border-slate-700 px-4 py-2 text-xs font-medium text-slate-200 hover:bg-slate-800"
+            className="rounded-xl border border-slate-700 px-4 py-2 text-xs font-medium text-slate-200 hover:bg-slate-800"
           >
             Покинуть комнату
           </button>
@@ -237,7 +238,7 @@ export const Lobby = ({
             <button
               type="button"
               onClick={handleStartGuess}
-              className="rounded-lg bg-violet-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-violet-500/30 transition hover:bg-violet-300"
+              className="rounded-xl bg-violet-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-violet-500/30 transition hover:bg-violet-300"
             >
               Начать игру
             </button>
@@ -246,7 +247,7 @@ export const Lobby = ({
             <button
               type="button"
               onClick={handleStartTeamsGame}
-              className="rounded-lg bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/30 transition hover:bg-sky-300"
+              className="rounded-xl bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/30 transition hover:bg-sky-300"
             >
               Начать игру
             </button>

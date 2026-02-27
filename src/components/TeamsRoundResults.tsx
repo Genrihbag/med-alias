@@ -13,6 +13,21 @@ export const TeamsRoundResults = ({ onBackToHome }: TeamsRoundResultsProps) => {
   const [countdown, setCountdown] = useState<number | null>(null)
   const [starting, setStarting] = useState(false)
 
+  useEffect(() => {
+    if (!currentRoom || currentRoom.settings.mode !== 'teams' || !state) return
+    if (countdown === null || countdown <= 0) return
+    const t = setTimeout(() => {
+      if (countdown === 1) {
+        startTeamsRound()
+        setCountdown(null)
+        setStarting(false)
+      } else {
+        setCountdown(countdown - 1)
+      }
+    }, 1000)
+    return () => clearTimeout(t)
+  }, [countdown, startTeamsRound, currentRoom, state])
+
   if (!currentRoom || currentRoom.settings.mode !== 'teams' || !state) {
     return null
   }
@@ -27,20 +42,6 @@ export const TeamsRoundResults = ({ onBackToHome }: TeamsRoundResultsProps) => {
     setStarting(true)
     setCountdown(5)
   }
-
-  useEffect(() => {
-    if (countdown === null || countdown <= 0) return
-    const t = setTimeout(() => {
-      if (countdown === 1) {
-        startTeamsRound()
-        setCountdown(null)
-        setStarting(false)
-      } else {
-        setCountdown(countdown - 1)
-      }
-    }, 1000)
-    return () => clearTimeout(t)
-  }, [countdown, startTeamsRound])
 
   const handleFinishGame = () => {
     finishTeamsGame()
@@ -74,7 +75,7 @@ export const TeamsRoundResults = ({ onBackToHome }: TeamsRoundResultsProps) => {
               return (
                 <li
                   key={team.id}
-                  className={`flex items-center justify-between rounded-lg px-4 py-3 ${
+                  className={`flex items-center justify-between rounded-xl px-4 py-3 ${
                     isNext
                       ? 'border-2 border-sky-500 bg-sky-500/10'
                       : 'bg-slate-900/80'
@@ -101,7 +102,7 @@ export const TeamsRoundResults = ({ onBackToHome }: TeamsRoundResultsProps) => {
             <button
               type="button"
               onClick={handleFinishGame}
-              className="w-full rounded-lg bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-950"
+              className="w-full rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-slate-950"
             >
               Главное меню
             </button>
@@ -110,7 +111,7 @@ export const TeamsRoundResults = ({ onBackToHome }: TeamsRoundResultsProps) => {
               type="button"
               onClick={handleStartRound}
               disabled={starting}
-              className="w-full rounded-lg bg-sky-400 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/30 transition hover:bg-sky-300 disabled:opacity-70"
+              className="w-full rounded-xl bg-sky-400 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/30 transition hover:bg-sky-300 disabled:opacity-70"
             >
               Начать игру
             </button>

@@ -25,7 +25,7 @@ export const RulesModal = ({ title, children, onClose }: RulesModalProps) => (
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+          className="rounded-xl px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
           aria-label="Закрыть"
         >
           ✕
@@ -38,7 +38,7 @@ export const RulesModal = ({ title, children, onClose }: RulesModalProps) => (
         <button
           type="button"
           onClick={onClose}
-          className="w-full rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-600"
+          className="w-full rounded-xl bg-slate-700 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-600"
         >
           Закрыть
         </button>

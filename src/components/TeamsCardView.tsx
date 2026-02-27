@@ -17,11 +17,13 @@ export const TeamsCardView = () => {
   const roundStartedAt = state?.roundStartedAt
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFactRevealed(false)
   }, [state?.currentCardIndexInRound])
 
   useEffect(() => {
     if (roundStartedAt == null) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSecondsLeft(roundDurationSec)
     const t = setInterval(() => {
       const elapsed = Math.floor((Date.now() - roundStartedAt) / 1000)
@@ -83,7 +85,7 @@ export const TeamsCardView = () => {
             </p>
           </div>
           {secondsLeft != null && (
-            <div className="shrink-0 rounded-lg border border-slate-600 bg-slate-800/80 px-3 py-2 text-center">
+            <div className="shrink-0 rounded-xl border border-slate-600 bg-slate-800/80 px-3 py-2 text-center">
               <p className="text-xl font-mono font-semibold tabular-nums text-slate-100">{secondsLeft}</p>
             </div>
           )}
@@ -99,7 +101,7 @@ export const TeamsCardView = () => {
                 {card.forbidden.map((w) => (
                   <span
                     key={w}
-                    className="rounded-lg bg-[#722f37]/80 px-3 py-1.5 text-sm font-medium text-white"
+                    className="rounded-xl bg-[#722f37]/80 px-3 py-1.5 text-sm font-medium text-white"
                   >
                     {w}
                   </span>

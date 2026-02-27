@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import {
   createContext,
   useCallback,
@@ -173,7 +174,7 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
         if (room) joinedRoomRef.current = room
         return nextRooms
       })
-      let room = joinedRoomRef.current as Room | null
+      const room = joinedRoomRef.current as Room | null
       if (room) {
         setCurrentRoomId(room.id)
         setRoomIdInUrl(room.id)

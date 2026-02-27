@@ -62,24 +62,17 @@ export const GuessSetup = ({ onBack, onCreated }: GuessSetupProps) => {
 
   return (
     <>
-    <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 px-4 text-slate-100">
-      <div className="w-full max-w-3xl space-y-6 rounded-3xl bg-slate-900/80 p-8 shadow-2xl">
+    <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 p-4 text-slate-100">
+      <div className="w-full max-w-3xl space-y-6 rounded-3xl bg-slate-900/80 px-4 py-4 shadow-2xl">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="mb-1 text-sm text-violet-400">Режим</p>
-            <h1 className="text-2xl font-semibold">Онлайн режим</h1>
+            <p className="mb-1 text-sm text-violet-400">Онлайн режим</p>
+            <h1 className="text-2xl font-semibold">Шаг 1: настройка лобби</h1>
             <p className="mt-1 text-xs text-slate-300">
               Онлайн-квиз без ведущего: каждый игрок отвечает на одни и те же вопросы, очки
               считаются по игрокам.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onBack}
-            className="rounded-lg border border-slate-600 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-800"
-          >
-            Главный экран
-          </button>
         </div>
 
         <section className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/60 p-4">
@@ -160,7 +153,7 @@ export const GuessSetup = ({ onBack, onCreated }: GuessSetupProps) => {
                 key={sec}
                 type="button"
                 onClick={() => setSecondsPerWord(sec)}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                className={`rounded-xl px-3 py-1.5 text-xs font-medium transition ${
                   secondsPerWord === sec
                     ? 'bg-violet-400 text-slate-950'
                     : 'bg-slate-800 text-slate-100 hover:bg-slate-700'
@@ -171,29 +164,39 @@ export const GuessSetup = ({ onBack, onCreated }: GuessSetupProps) => {
             ))}
           </div>
         </section>
-
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-xs text-slate-400">
-            {!user && (
+        <p className="text-xs text-slate-400">
+          {!user && (
               <span className="text-amber-400">Войдите в аккаунт, чтобы создать комнату. </span>
-            )}
-            В этой сессии игроков может быть до 50 — каждый отвечает со своего устройства.
-          </p>
-          <button
-            type="button"
-            onClick={() => setShowRules(true)}
-            className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
-          >
-            Правила
-          </button>
-          <button
-            type="button"
-            disabled={!canCreate}
-            onClick={handleCreateRoom}
-            className="rounded-lg bg-violet-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-violet-500/30 transition enabled:hover:bg-violet-300 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            Создать комнату
-          </button>
+          )}
+          В этой сессии игроков может быть до 50 — каждый отвечает со своего устройства.
+        </p>
+        <div className="flex justify-between gap-4">
+          <div className="w-1/2 flex flex-col items-center justify-between gap-4">
+            <button
+                type="button"
+                onClick={() => setShowRules(true)}
+                className="w-full rounded-xl border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
+            >
+              Правила
+            </button>
+            <button
+                type="button"
+                onClick={onBack}
+                className="w-full rounded-xl border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800"
+            >
+              Главное меню
+            </button>
+          </div>
+          <div className="w-1/2 flex">
+            <button
+                type="button"
+                disabled={!canCreate}
+                onClick={handleCreateRoom}
+                className="w-full rounded-xl text-smrounded-xl bg-violet-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-violet-500/30 transition enabled:hover:bg-violet-300 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Создать комнату
+            </button>
+          </div>
         </div>
       </div>
     </div>
