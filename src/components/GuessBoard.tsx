@@ -1,4 +1,4 @@
-import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { type FormEvent, useEffect, useMemo, useState } from 'react'
 
 import { CATEGORIES } from '../constants/categories'
 import { getCardById } from '../data/cards'
@@ -13,8 +13,8 @@ const preventCopy = (e: React.ClipboardEvent) => {
 }
 
 export const GuessBoard = () => {
-  const { currentRoom, advanceGuessQuestion } = useRoom()
-  const { hasAnswered, submitGuess } = useGame()
+  const { currentRoom, advanceGuessQuestion, startGuessResultPhase } = useRoom()
+  const { hasAnswered, lastResult, submitGuess } = useGame()
   const { user } = useAuth()
   const [answer, setAnswer] = useState('')
   const [usedHint, setUsedHint] = useState(false)
@@ -26,7 +26,6 @@ export const GuessBoard = () => {
 
   const isHost = !!(currentRoom && user && currentRoom.hostId === user.id)
   const isShowingResult = currentRoom?.guessShowingResult ?? false
-  const guessLastResult = currentRoom?.guessLastResult ?? null
   const isFinished = currentRoom?.status === 'finished'
 
   const totalQuestions =
@@ -34,13 +33,10 @@ export const GuessBoard = () => {
 
   const currentCard = useMemo(() => {
     if (!currentRoom || currentRoom.usedCardIds.length === 0) return null
-    if (isShowingResult && guessLastResult) {
-      return getCardById(guessLastResult.cardId) ?? null
-    }
     const index = currentRoom.currentQuestionIndex
     const cardId = currentRoom.usedCardIds[index]
     return getCardById(cardId) ?? null
-  }, [currentRoom, isShowingResult, guessLastResult])
+  }, [currentRoom])
 
   const currentQuestionNumber =
     currentRoom && currentRoom.usedCardIds.length > 0
@@ -71,21 +67,15 @@ export const GuessBoard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentRoom?.guessStartedAt, currentRoom?.settings.mode, secondsPerWord, isFinished, isShowingResult])
 
-  // Auto-submit on timer expiry (host only to avoid duplicate submissions)
-  const commitAndNext = useCallback(() => {
-    if (hasAnswered || isFinished || isShowingResult) return
-    submitGuess(answer.trim() || '', usedHint)
-    setAnswer('')
-    setUsedHint(false)
-    setHintRevealed(false)
-  }, [answer, hasAnswered, isFinished, isShowingResult, submitGuess, usedHint])
-
+  // When timer reaches 0 on host, переключаемся в фазу показа правильного ответа
   useEffect(() => {
-    if (secondsLeft === 0 && !hasAnswered && !isFinished && !isShowingResult && isHost) {
-      commitAndNext()
-    }
+    if (!isHost || !currentRoom || currentRoom.settings.mode !== 'guess') return
+    if (currentRoom.status !== 'inGame') return
+    if (currentRoom.guessShowingResult) return
+    if (secondsLeft > 0) return
+    startGuessResultPhase()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secondsLeft, hasAnswered, isFinished, isShowingResult, isHost])
+  }, [secondsLeft, isHost, currentRoom?.status, currentRoom?.settings.mode, currentRoom?.guessShowingResult])
 
   // Result timer: sync to server's guessResultShownAt
   useEffect(() => {
@@ -157,7 +147,7 @@ export const GuessBoard = () => {
     doSubmit('')
   }
 
-  const resultCard = guessLastResult ? getCardById(guessLastResult.cardId) : null
+  const isCorrectForUser = Boolean(lastResult?.correct)
 
   return (
     <div className="flex min-h-[100svh] items-center justify-center bg-slate-950 px-4 text-slate-100">
@@ -187,17 +177,14 @@ export const GuessBoard = () => {
         </div>
       )}
 
-      {isShowingResult && resultCard && (
+      {isShowingResult && currentCard && (
         <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-slate-950/95 px-4">
-          <p className="mb-1 text-xs text-slate-500">
-            Ответил(а): {guessLastResult?.answeredByName ?? '—'}
-          </p>
           <p className="mb-2 text-sm text-slate-400">
-            {guessLastResult?.correct ? 'Правильно!' : 'Неправильно'}
+            {isCorrectForUser ? 'Правильно!' : 'Неправильно'}
           </p>
-          <p className="text-3xl font-bold text-violet-300">{resultCard.word}</p>
+          <p className="text-3xl font-bold text-violet-300">{currentCard.word}</p>
           <p className="mt-4 max-w-md text-center text-sm text-slate-300">
-            {resultCard.fact}
+            {currentCard.fact}
           </p>
           <p className="mt-6 text-slate-500">
             Следующий вопрос через {resultSecondsLeft}…

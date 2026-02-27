@@ -20,6 +20,7 @@ import {
   submitGuess as svcSubmitGuess,
   advanceGuessQuestion as svcAdvanceGuessQuestion,
   startGuessCountdown as svcStartGuessCountdown,
+  startGuessResultPhase as svcStartGuessResultPhase,
   startTeamsGame as svcStartTeamsGame,
   startTeamsRound as svcStartTeamsRound,
   processTeamsCardAction as svcProcessTeamsCardAction,
@@ -47,6 +48,7 @@ interface RoomContextValue {
   submitGuess: (answer: string, usedHint?: boolean) => GuessResult | null
   advanceGuessQuestion: () => void
   startGuessCountdown: () => void
+  startGuessResultPhase: () => void
   startTeamsGame: () => Room | null
   startTeamsRound: () => Room | null
   processTeamsCardAction: (action: TeamsCardAction, endRound?: boolean) => void
@@ -286,6 +288,16 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
     })
   }, [currentRoomId])
 
+  const startGuessResultPhase = useCallback(() => {
+    if (!currentRoomId) return
+    markMutation()
+    setRoomsById((prev) => {
+      const { roomsById: nextRooms, room } = svcStartGuessResultPhase(prev, currentRoomId)
+      if (isApiEnabled() && room) apiUpdateRoom(room).catch(console.error)
+      return nextRooms
+    })
+  }, [currentRoomId])
+
   const startTeamsGame = useCallback((): Room | null => {
     if (!currentRoomId) return null
     markMutation()
@@ -415,6 +427,7 @@ export const RoomProvider = ({ children }: RoomProviderProps) => {
     submitGuess,
     advanceGuessQuestion,
     startGuessCountdown,
+    startGuessResultPhase,
     startTeamsGame,
     startTeamsRound,
     processTeamsCardAction,

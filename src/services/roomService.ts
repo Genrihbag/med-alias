@@ -248,14 +248,9 @@ export const submitGuess = (
     }
   })
 
-  const answeredByName = room.players.find((p) => p.id === userId)?.name ?? ''
-
   const updatedRoom: Room = {
     ...room,
     players,
-    guessShowingResult: true,
-    guessLastResult: { correct, cardId, answeredByName },
-    guessResultShownAt: Date.now(),
   }
 
   const result: GuessResult = {
@@ -269,6 +264,30 @@ export const submitGuess = (
       [roomId]: updatedRoom,
     },
     result,
+  }
+}
+
+export const startGuessResultPhase = (
+  roomsById: RoomsById,
+  roomId: string,
+): { roomsById: RoomsById; room: Room | null } => {
+  const room = roomsById[roomId]
+  if (!room || room.status !== 'inGame') {
+    return { roomsById, room: null }
+  }
+  if (room.guessShowingResult) {
+    return { roomsById, room }
+  }
+
+  const updatedRoom: Room = {
+    ...room,
+    guessShowingResult: true,
+    guessResultShownAt: Date.now(),
+  }
+
+  return {
+    roomsById: { ...roomsById, [roomId]: updatedRoom },
+    room: updatedRoom,
   }
 }
 
